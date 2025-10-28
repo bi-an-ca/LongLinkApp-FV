@@ -74,6 +74,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setPartner(partnerData);
         }
       }
+    } else {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        const { error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: userData.user.email || '',
+            display_name: userData.user.email?.split('@')[0] || 'User',
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          });
+
+        if (!createError) {
+          await loadProfile(userId);
+        }
+      }
     }
   };
 

@@ -6,6 +6,7 @@ import Chat from './Chat';
 import MoodCheckin from './MoodCheckin';
 import MemoriesFeed from './MemoriesFeed';
 import DailyPrompts from './DailyPrompts';
+import PendingPartner from './PendingPartner';
 
 type Tab = 'chat' | 'mood' | 'memories' | 'prompts';
 
@@ -70,10 +71,16 @@ export default function MainApp() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {activeTab === 'chat' && <Chat />}
-        {activeTab === 'mood' && <MoodCheckin />}
-        {activeTab === 'memories' && <MemoriesFeed />}
-        {activeTab === 'prompts' && <DailyPrompts />}
+        {!partner ? (
+          <PendingPartner />
+        ) : (
+          <>
+            {activeTab === 'chat' && <Chat />}
+            {activeTab === 'mood' && <MoodCheckin />}
+            {activeTab === 'memories' && <MemoriesFeed />}
+            {activeTab === 'prompts' && <DailyPrompts />}
+          </>
+        )}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">

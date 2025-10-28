@@ -28,10 +28,6 @@ function AppContent() {
     return <Auth onDemoMode={() => setIsDemoMode(true)} />;
   }
 
-  if (!partner) {
-    return <PartnerSetup />;
-  }
-
   return <MainApp />;
 }
 
