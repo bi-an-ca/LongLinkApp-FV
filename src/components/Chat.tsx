@@ -112,7 +112,7 @@ export default function Chat() {
                 <div
                   className={`rounded-2xl px-4 py-2 ${
                     isMine
-                      ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
+                      ? 'bg-gradient-to-br brand-coral text-white'
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
@@ -173,12 +173,12 @@ export default function Chat() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none"
+            className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none"
           />
           <button
             type="submit"
             disabled={loading || !newMessage.trim()}
-            className="p-2 bg-gradient-to-br from-pink-400 to-rose-400 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
+            className="p-2 bg-gradient-to-br brand-coral text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
           >
             <Send className="w-6 h-6" />
           </button>

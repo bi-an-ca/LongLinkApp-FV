@@ -99,7 +99,7 @@ export default function MemoriesFeed() {
         <h2 className="text-2xl font-bold text-gray-800">Our Memories</h2>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r brand-coral text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
         >
           <Plus className="w-5 h-5" />
           <span className="text-sm font-medium">Add Memory</span>
@@ -114,13 +114,13 @@ export default function MemoriesFeed() {
             onChange={(e) => setNewContent(e.target.value)}
             placeholder="Share a moment, thought, or memory..."
             rows={4}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none resize-none mb-4"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none mb-4"
           />
           <div className="flex gap-2">
             <button
               onClick={handleCreateMemory}
               disabled={!newContent.trim() || loading}
-              className="flex-1 bg-gradient-to-r from-pink-400 to-rose-400 text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r brand-coral text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save Memory'}
             </button>
@@ -153,7 +153,7 @@ export default function MemoriesFeed() {
             <div key={memory.id} className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center text-white font-semibold">
+                  <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center text-white font-semibold">
                     {author?.display_name.charAt(0).toUpperCase()}
                   </div>
                   <div>

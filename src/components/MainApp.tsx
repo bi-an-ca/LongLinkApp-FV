@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { MessageCircle, Heart, ImageIcon, MessageSquare, LogOut, Clock } from 'lucide-react';
+import Logo from './Logo';
 import Chat from './Chat';
 import MoodCheckin from './MoodCheckin';
 import MemoriesFeed from './MemoriesFeed';
@@ -26,19 +27,11 @@ export default function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50">
+    <div className="min-h-screen bg-brand-light">
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white fill-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">LongLink</h1>
-                <p className="text-xs text-gray-500">Love that travels with you</p>
-              </div>
-            </div>
+            <Logo size="sm" showText={true} textStyle="horizontal" />
             <button
               onClick={signOut}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -48,9 +41,9 @@ export default function MainApp() {
             </button>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-sm bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-4">
+          <div className="flex items-center justify-center gap-6 text-sm bg-white/60 rounded-2xl p-4 border border-brand-blush/30">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-pink-500" />
+              <Clock className="w-4 h-4 text-brand-coral" />
               <div>
                 <p className="text-xs text-gray-500">You</p>
                 <p className="font-medium text-gray-800">
@@ -60,9 +53,9 @@ export default function MainApp() {
             </div>
             {partner && (
               <>
-                <div className="w-px h-8 bg-pink-200"></div>
+                <div className="w-px h-8 bg-brand-blush"></div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-rose-500" />
+                  <Clock className="w-4 h-4 text-brand-coral" />
                   <div>
                     <p className="text-xs text-gray-500">{partner.display_name}</p>
                     <p className="font-medium text-gray-800">
@@ -83,15 +76,15 @@ export default function MainApp() {
         {activeTab === 'prompts' && <DailyPrompts />}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-around">
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'chat'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
               <MessageCircle className="w-6 h-6" />
@@ -101,8 +94,8 @@ export default function MainApp() {
               onClick={() => setActiveTab('mood')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'mood'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
               <Heart className="w-6 h-6" />
@@ -112,8 +105,8 @@ export default function MainApp() {
               onClick={() => setActiveTab('memories')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'memories'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
               <ImageIcon className="w-6 h-6" />
@@ -123,8 +116,8 @@ export default function MainApp() {
               onClick={() => setActiveTab('prompts')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'prompts'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
               <MessageSquare className="w-6 h-6" />

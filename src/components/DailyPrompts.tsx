@@ -94,7 +94,7 @@ export default function DailyPrompts() {
   if (!todayPrompt) {
     return (
       <div className="text-center py-12">
-        <MessageSquare className="w-16 h-16 text-pink-300 mx-auto mb-4" />
+        <MessageSquare className="w-16 h-16 text-brand-coral300 mx-auto mb-4" />
         <p className="text-gray-500">No prompt available for today</p>
       </div>
     );
@@ -102,14 +102,14 @@ export default function DailyPrompts() {
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="bg-gradient-to-br from-pink-100 to-rose-100 rounded-3xl shadow-xl p-8">
+      <div className="bg-gradient-to-br brand-light to-white rounded-3xl shadow-xl p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-            <MessageSquare className="w-6 h-6 text-pink-500" />
+            <MessageSquare className="w-6 h-6 text-brand-coral500" />
           </div>
           <div>
-            <p className="text-sm text-pink-700 font-medium">Today's Prompt</p>
-            <p className="text-xs text-pink-600">
+            <p className="text-sm text-brand-coral700 font-medium">Today's Prompt</p>
+            <p className="text-xs text-brand-coral600">
               {new Date().toLocaleDateString('en-US', {
                 month: 'long',
                 day: 'numeric',
@@ -130,12 +130,12 @@ export default function DailyPrompts() {
           onChange={(e) => setResponseText(e.target.value)}
           placeholder="Share your thoughts..."
           rows={4}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none resize-none mb-4"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none mb-4"
         />
         <button
           onClick={handleSubmitResponse}
           disabled={!responseText.trim() || loading}
-          className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r brand-coral text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
         >
           {loading ? (
             'Saving...'
@@ -151,7 +151,7 @@ export default function DailyPrompts() {
       {partnerResponse && (
         <div className="bg-white rounded-3xl shadow-xl p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center text-white font-semibold">
               {partner?.display_name.charAt(0).toUpperCase()}
             </div>
             <div>

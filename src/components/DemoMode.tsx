@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MessageCircle, Heart, ImageIcon, MessageSquare, ArrowLeft, Clock, Send, Smile, Plus, Trash2 } from 'lucide-react';
+import Logo from './Logo';
 
 type Tab = 'chat' | 'mood' | 'memories' | 'prompts';
 
@@ -70,7 +71,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               <div
                 className={`rounded-2xl px-4 py-2 ${
                   message.isMine
-                    ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
+                    ? 'bg-gradient-to-br brand-coral text-white'
                     : 'bg-gray-100 text-gray-800'
                 }`}
               >
@@ -105,9 +106,9 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none"
+            className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none"
           />
-          <button className="p-2 bg-gradient-to-br from-pink-400 to-rose-400 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all">
+          <button className="p-2 bg-gradient-to-br brand-coral text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all">
             <Send className="w-6 h-6" />
           </button>
         </div>
@@ -146,11 +147,11 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             onChange={(e) => setMoodNote(e.target.value)}
             placeholder="What's on your mind?"
             rows={3}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none resize-none"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none"
           />
         </div>
 
-        <button className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg">
+        <button className="w-full bg-gradient-to-r brand-coral text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg">
           Update Mood
         </button>
       </div>
@@ -175,7 +176,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
         <h2 className="text-2xl font-bold text-gray-800">Our Memories</h2>
         <button
           onClick={() => setShowCreateMemory(!showCreateMemory)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r brand-coral text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
         >
           <Plus className="w-5 h-5" />
           <span className="text-sm font-medium">Add Memory</span>
@@ -190,10 +191,10 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             onChange={(e) => setNewMemory(e.target.value)}
             placeholder="Share a moment, thought, or memory..."
             rows={4}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none resize-none mb-4"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none mb-4"
           />
           <div className="flex gap-2">
-            <button className="flex-1 bg-gradient-to-r from-pink-400 to-rose-400 text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all">
+            <button className="flex-1 bg-gradient-to-r brand-coral text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all">
               Save Memory
             </button>
             <button
@@ -214,7 +215,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           <div key={memory.id} className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center text-white font-semibold">
                   {memory.author.charAt(0)}
                 </div>
                 <div>
@@ -237,14 +238,14 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
 
   const renderPrompts = () => (
     <div className="space-y-6 pb-20">
-      <div className="bg-gradient-to-br from-pink-100 to-rose-100 rounded-3xl shadow-xl p-8">
+      <div className="bg-gradient-to-br brand-light to-white rounded-3xl shadow-xl p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-            <MessageSquare className="w-6 h-6 text-pink-500" />
+            <MessageSquare className="w-6 h-6 text-brand-coral" />
           </div>
           <div>
-            <p className="text-sm text-pink-700 font-medium">Today's Prompt</p>
-            <p className="text-xs text-pink-600">
+            <p className="text-sm text-brand-coral/90 font-medium">Today's Prompt</p>
+            <p className="text-xs text-brand-coral/80">
               {new Date().toLocaleDateString('en-US', {
                 month: 'long',
                 day: 'numeric',
@@ -265,9 +266,9 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           onChange={(e) => setPromptResponse(e.target.value)}
           placeholder="Share your thoughts..."
           rows={4}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none resize-none mb-4"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none mb-4"
         />
-        <button className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg flex items-center justify-center gap-2">
+        <button className="w-full bg-gradient-to-r brand-coral text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg flex items-center justify-center gap-2">
           <Send className="w-5 h-5" />
           Update Response
         </button>
@@ -275,7 +276,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
 
       <div className="bg-white rounded-3xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center text-white font-semibold">
+          <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center text-white font-semibold">
             A
           </div>
           <div>
@@ -283,7 +284,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             <p className="text-xs text-gray-500">Today at 2:30 PM</p>
           </div>
         </div>
-        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap bg-gradient-to-br from-pink-50 to-rose-50 p-4 rounded-xl">
+        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap bg-gradient-to-br from-brand-light to-white p-4 rounded-xl">
           Getting to video call with you this morning. Even though we're far apart, moments like these make everything worth it.
         </p>
       </div>
@@ -291,12 +292,12 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br brand-light">
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center">
                 <Heart className="w-5 h-5 text-white fill-white" />
               </div>
               <div>
@@ -313,17 +314,17 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             </button>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-sm bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-4">
+          <div className="flex items-center justify-center gap-6 text-sm bg-gradient-to-r from-brand-light to-white rounded-2xl p-4">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-pink-500" />
+              <Clock className="w-4 h-4 text-brand-coral" />
               <div>
                 <p className="text-xs text-gray-500">You</p>
                 <p className="font-medium text-gray-800">2:30 PM</p>
               </div>
             </div>
-            <div className="w-px h-8 bg-pink-200"></div>
+            <div className="w-px h-8 bg-brand-blush"></div>
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-rose-500" />
+              <Clock className="w-4 h-4 text-brand-coral" />
               <div>
                 <p className="text-xs text-gray-500">Alex</p>
                 <p className="font-medium text-gray-800">11:30 AM</p>
@@ -347,7 +348,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('chat')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'chat'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
+                  ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -358,7 +359,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('mood')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'mood'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
+                  ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -369,7 +370,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('memories')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'memories'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
+                  ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -380,7 +381,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('prompts')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 activeTab === 'prompts'
-                  ? 'bg-gradient-to-br from-pink-400 to-rose-400 text-white'
+                  ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >

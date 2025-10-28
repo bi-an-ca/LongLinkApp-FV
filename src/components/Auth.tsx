@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Heart, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
+import Logo from './Logo';
 
 interface AuthProps {
   onDemoMode?: () => void;
@@ -36,14 +37,10 @@ export default function Auth({ onDemoMode }: AuthProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-brand-light flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full mb-4 shadow-lg">
-            <Heart className="w-10 h-10 text-white fill-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">LongLink</h1>
-          <p className="text-gray-600">Love that travels with you</p>
+        <div className="mb-8 flex justify-center">
+          <Logo size="lg" showText={true} textStyle="vertical" />
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl p-8">
@@ -52,8 +49,8 @@ export default function Auth({ onDemoMode }: AuthProps) {
               onClick={() => setIsSignUp(false)}
               className={`flex-1 py-2 px-4 rounded-full transition-all ${
                 !isSignUp
-                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white'
-                  : 'bg-gray-100 text-gray-600'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'bg-white text-gray-600'
               }`}
             >
               Sign In
@@ -62,8 +59,8 @@ export default function Auth({ onDemoMode }: AuthProps) {
               onClick={() => setIsSignUp(true)}
               className={`flex-1 py-2 px-4 rounded-full transition-all ${
                 isSignUp
-                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white'
-                  : 'bg-gray-100 text-gray-600'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'bg-white text-gray-600'
               }`}
             >
               Sign Up
@@ -81,7 +78,7 @@ export default function Auth({ onDemoMode }: AuthProps) {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-brand-blush/30 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none transition-all bg-white"
                   placeholder="Your name"
                 />
               </div>
@@ -120,7 +117,7 @@ export default function Auth({ onDemoMode }: AuthProps) {
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-brand-blush/30 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none transition-all bg-white"
                   placeholder="America/New_York"
                 />
               </div>
@@ -133,7 +130,7 @@ export default function Auth({ onDemoMode }: AuthProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg"
+              className="w-full bg-brand-coral text-white py-3 rounded-xl font-medium hover:bg-brand-coral/90 transition-all disabled:opacity-50 shadow-lg"
             >
               {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
             </button>
@@ -143,7 +140,7 @@ export default function Auth({ onDemoMode }: AuthProps) {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <button
                 onClick={onDemoMode}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 rounded-xl font-medium transition-all border border-blue-200"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-white hover:bg-brand-light text-brand-coral rounded-xl font-medium transition-all border-2 border-brand-coral"
               >
                 <Eye className="w-5 h-5" />
                 Try Demo Mode

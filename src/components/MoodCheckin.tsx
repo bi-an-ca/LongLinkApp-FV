@@ -123,14 +123,14 @@ export default function MoodCheckin() {
             onChange={(e) => setNote(e.target.value)}
             placeholder="What's on your mind?"
             rows={3}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-300 focus:border-transparent outline-none resize-none"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none"
           />
         </div>
 
         <button
           onClick={handleSaveMood}
           disabled={!selectedMood || loading}
-          className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg"
+          className="w-full bg-gradient-to-r brand-coral text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg"
         >
           {loading ? 'Saving...' : myMood ? 'Update Mood' : 'Save Mood'}
         </button>
