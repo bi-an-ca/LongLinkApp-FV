@@ -13,7 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
-  linkPartner: (partnerEmail: string) => Promise<void>;
+  linkPartner: (inviteCode: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,17 +128,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadProfile(user.id);
   };
 
-  const linkPartner = async (partnerEmail: string) => {
+  const linkPartner = async (inviteCode: string) => {
     if (!user) return;
+
+    const upperInviteCode = inviteCode.toUpperCase().trim();
 
     const { data: partnerProfile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('email', partnerEmail)
+      .eq('invite_code', upperInviteCode)
       .maybeSingle();
 
     if (!partnerProfile) {
-      throw new Error('Partner not found with that email');
+      throw new Error('No one found with that invite code');
+    }
+
+    if (partnerProfile.id === user.id) {
+      throw new Error('You cannot link with yourself');
+    }
+
+    if (partnerProfile.partner_id) {
+      throw new Error('This person is already linked with someone else');
     }
 
     await supabase

@@ -17,6 +17,7 @@ export interface Database {
           timezone: string
           partner_id: string | null
           avatar_url: string
+          invite_code: string | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +28,7 @@ export interface Database {
           timezone?: string
           partner_id?: string | null
           avatar_url?: string
+          invite_code?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -37,6 +39,7 @@ export interface Database {
           timezone?: string
           partner_id?: string | null
           avatar_url?: string
+          invite_code?: string | null
           created_at?: string
           updated_at?: string
         }
