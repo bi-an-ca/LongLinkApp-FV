@@ -171,6 +171,53 @@ export interface Database {
           created_at?: string
         }
       }
+      calendar_events: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string
+          event_date: string
+          event_time: string | null
+          event_type: string
+          location: string
+          is_shared: boolean
+          reminder_enabled: boolean
+          reminder_days_before: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string
+          event_date: string
+          event_time?: string | null
+          event_type?: string
+          location?: string
+          is_shared?: boolean
+          reminder_enabled?: boolean
+          reminder_days_before?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string
+          event_date?: string
+          event_time?: string | null
+          event_type?: string
+          location?: string
+          is_shared?: boolean
+          reminder_enabled?: boolean
+          reminder_days_before?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -193,3 +240,4 @@ export type MoodCheckin = Database['public']['Tables']['mood_checkins']['Row']
 export type Memory = Database['public']['Tables']['memories']['Row']
 export type DailyPrompt = Database['public']['Tables']['daily_prompts']['Row']
 export type PromptResponse = Database['public']['Tables']['prompt_responses']['Row']
+export type CalendarEvent = Database['public']['Tables']['calendar_events']['Row']

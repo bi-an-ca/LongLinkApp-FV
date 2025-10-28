@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MessageCircle, Heart, ImageIcon, MessageSquare, LogOut, Clock } from 'lucide-react';
+import { MessageCircle, Heart, ImageIcon, MessageSquare, LogOut, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import Logo from './Logo';
 import Chat from './Chat';
 import MoodCheckin from './MoodCheckin';
 import MemoriesFeed from './MemoriesFeed';
 import DailyPrompts from './DailyPrompts';
+import Calendar from './Calendar';
 import PendingPartner from './PendingPartner';
 
-type Tab = 'chat' | 'mood' | 'memories' | 'prompts';
+type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar';
 
 export default function MainApp() {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
@@ -70,7 +71,7 @@ export default function MainApp() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
         {!partner ? (
           <PendingPartner />
         ) : (
@@ -79,6 +80,7 @@ export default function MainApp() {
             {activeTab === 'mood' && <MoodCheckin />}
             {activeTab === 'memories' && <MemoriesFeed />}
             {activeTab === 'prompts' && <DailyPrompts />}
+            {activeTab === 'calendar' && <Calendar />}
           </>
         )}
       </main>
@@ -88,47 +90,58 @@ export default function MainApp() {
           <div className="flex items-center justify-around">
             <button
               onClick={() => setActiveTab('chat')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'chat'
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
-              <MessageCircle className="w-6 h-6" />
+              <MessageCircle className="w-5 h-5" />
               <span className="text-xs font-medium">Chat</span>
             </button>
             <button
               onClick={() => setActiveTab('mood')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'mood'
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
-              <Heart className="w-6 h-6" />
+              <Heart className="w-5 h-5" />
               <span className="text-xs font-medium">Mood</span>
             </button>
             <button
               onClick={() => setActiveTab('memories')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'memories'
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
-              <ImageIcon className="w-6 h-6" />
+              <ImageIcon className="w-5 h-5" />
               <span className="text-xs font-medium">Memories</span>
             </button>
             <button
               onClick={() => setActiveTab('prompts')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'prompts'
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
             >
-              <MessageSquare className="w-6 h-6" />
+              <MessageSquare className="w-5 h-5" />
               <span className="text-xs font-medium">Prompts</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
+                activeTab === 'calendar'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
+              }`}
+            >
+              <CalendarIcon className="w-5 h-5" />
+              <span className="text-xs font-medium">Calendar</span>
             </button>
           </div>
         </div>
