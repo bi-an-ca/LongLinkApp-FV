@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { MessageCircle, Heart, ImageIcon, MessageSquare, ArrowLeft, Clock, Send, Smile, Plus, Trash2 } from 'lucide-react';
+import { MessageCircle, Heart, ImageIcon, MessageSquare, ArrowLeft, Clock, Send, Smile, Plus, Trash2, Calendar as CalendarIcon, ChevronLeft, ChevronRight, MapPin, X, Bell } from 'lucide-react';
 import Logo from './Logo';
 
-type Tab = 'chat' | 'mood' | 'memories' | 'prompts';
+type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar';
 
 const MOODS = [
   { emoji: '😊', label: 'Happy', color: 'from-yellow-200 to-amber-200' },
@@ -49,6 +49,14 @@ const DEMO_MEMORIES = [
   },
 ];
 
+const DEMO_EVENTS = [
+  { id: '1', title: 'Next Reunion!', date: new Date(2025, 11, 15), type: 'reunion', location: 'Paris, France', time: '3:00 PM', description: 'Finally meeting after 3 months! Flight lands at CDG.' },
+  { id: '2', title: 'Our Anniversary', date: new Date(2025, 11, 1), type: 'anniversary', location: '', time: '', description: '2 years together!' },
+  { id: '3', title: 'Alex\'s Birthday', date: new Date(2025, 10, 25), type: 'birthday', location: '', time: '12:00 PM', description: 'Don\'t forget to call!' },
+  { id: '4', title: 'Send Care Package', date: new Date(2025, 10, 20), type: 'reminder', location: '', time: '', description: 'Mail the care package so it arrives on time' },
+  { id: '5', title: 'Video Call Date Night', date: new Date(2025, 10, 28), type: 'other', location: '', time: '8:00 PM', description: 'Movie night together over video call' },
+];
+
 export default function DemoMode({ onExit }: { onExit: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [newMessage, setNewMessage] = useState('');
@@ -57,6 +65,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
   const [promptResponse, setPromptResponse] = useState('You always know how to make me smile, even from thousands of miles away');
   const [showCreateMemory, setShowCreateMemory] = useState(false);
   const [newMemory, setNewMemory] = useState('');
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const renderChat = () => (
     <div className="bg-white rounded-3xl shadow-xl h-[calc(100vh-280px)] flex flex-col">
@@ -291,6 +300,213 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
     </div>
   );
 
+  const renderCalendar = () => {
+    const getDaysInMonth = () => {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDayOfWeek = firstDay.getDay();
+
+      const days = [];
+      for (let i = 0; i < startingDayOfWeek; i++) {
+        days.push(null);
+      }
+      for (let i = 1; i <= daysInMonth; i++) {
+        days.push(new Date(year, month, i));
+      }
+      return days;
+    };
+
+    const getEventsForDate = (date: Date | null) => {
+      if (!date) return [];
+      return DEMO_EVENTS.filter(event =>
+        event.date.getDate() === date.getDate() &&
+        event.date.getMonth() === date.getMonth() &&
+        event.date.getFullYear() === date.getFullYear()
+      );
+    };
+
+    const getNextReunion = () => {
+      const now = new Date();
+      const reunionEvents = DEMO_EVENTS.filter(
+        event => event.type === 'reunion' && event.date >= now
+      );
+      return reunionEvents.sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+    };
+
+    const getDaysUntil = (date: Date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const targetDate = new Date(date);
+      targetDate.setHours(0, 0, 0, 0);
+      const diffTime = targetDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    };
+
+    const nextReunion = getNextReunion();
+    const days = getDaysInMonth();
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const eventTypeColors: Record<string, string> = {
+      reunion: 'bg-brand-coral text-white',
+      reminder: 'bg-blue-500 text-white',
+      anniversary: 'bg-pink-500 text-white',
+      birthday: 'bg-purple-500 text-white',
+      other: 'bg-gray-500 text-white',
+    };
+
+    return (
+      <div className="space-y-6 pb-20">
+        {nextReunion && (
+          <div className="bg-gradient-to-br from-brand-coral to-pink-500 rounded-3xl p-6 text-white shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90 mb-1">Next Reunion</p>
+                <h3 className="text-2xl font-bold mb-2">{nextReunion.title}</h3>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <CalendarIcon className="w-4 h-4" />
+                    {nextReunion.date.toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </div>
+                  {nextReunion.location && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {nextReunion.location}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-5xl font-bold mb-1">
+                  {getDaysUntil(nextReunion.date)}
+                </div>
+                <div className="text-sm opacity-90">days</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white rounded-3xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+                className="p-2 hover:bg-brand-light rounded-lg transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <button
+                onClick={() => setCurrentDate(new Date())}
+                className="px-4 py-2 text-sm font-medium text-brand-coral hover:bg-brand-light rounded-lg transition-colors"
+              >
+                Today
+              </button>
+              <button
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
+                className="p-2 hover:bg-brand-light rounded-lg transition-colors"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="ml-4 flex items-center gap-2 px-4 py-2 bg-brand-coral text-white rounded-xl hover:bg-brand-coral/90 transition-colors shadow-md">
+                <Plus className="w-5 h-5" />
+                Add Event
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-7 gap-2">
+            {dayNames.map(day => (
+              <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                {day}
+              </div>
+            ))}
+            {days.map((day, index) => {
+              const dayEvents = getEventsForDate(day);
+              const isToday = day && day.toDateString() === new Date().toDateString();
+
+              return (
+                <div
+                  key={index}
+                  className={`min-h-24 p-2 border border-gray-100 rounded-xl cursor-pointer transition-all hover:border-brand-coral hover:bg-brand-light/30 ${
+                    !day ? 'bg-gray-50' : ''
+                  } ${isToday ? 'border-brand-coral border-2 bg-brand-light/50' : ''}`}
+                >
+                  {day && (
+                    <>
+                      <div className={`text-sm font-medium mb-1 ${isToday ? 'text-brand-coral' : 'text-gray-700'}`}>
+                        {day.getDate()}
+                      </div>
+                      <div className="space-y-1">
+                        {dayEvents.slice(0, 2).map(event => (
+                          <div
+                            key={event.id}
+                            className={`text-xs px-2 py-1 rounded truncate ${
+                              eventTypeColors[event.type]
+                            }`}
+                          >
+                            {event.title}
+                          </div>
+                        ))}
+                        {dayEvents.length > 2 && (
+                          <div className="text-xs text-gray-500 px-2">
+                            +{dayEvents.length - 2} more
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Upcoming Events</h3>
+          <div className="space-y-3">
+            {DEMO_EVENTS.sort((a, b) => a.date.getTime() - b.date.getTime()).map(event => (
+              <div key={event.id} className="flex items-start gap-3 p-4 bg-brand-light rounded-xl hover:bg-brand-light/70 transition-colors">
+                <div className={`p-2 rounded-lg ${eventTypeColors[event.type]}`}>
+                  {event.type === 'reunion' ? <Heart className="w-5 h-5" /> :
+                   event.type === 'reminder' ? <Bell className="w-5 h-5" /> :
+                   event.type === 'anniversary' ? <Heart className="w-5 h-5" /> :
+                   <CalendarIcon className="w-5 h-5" />}
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-800">{event.title}</h4>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {event.time && ` at ${event.time}`}
+                  </div>
+                  {event.location && (
+                    <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                      <MapPin className="w-3 h-3" />
+                      {event.location}
+                    </div>
+                  )}
+                  {event.description && (
+                    <p className="text-sm text-gray-600 mt-2">{event.description}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br brand-light">
       <header className="bg-white shadow-sm sticky top-0 z-10">
@@ -334,11 +550,12 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
         {activeTab === 'chat' && renderChat()}
         {activeTab === 'mood' && renderMood()}
         {activeTab === 'memories' && renderMemories()}
         {activeTab === 'prompts' && renderPrompts()}
+        {activeTab === 'calendar' && renderCalendar()}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
@@ -346,47 +563,58 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           <div className="flex items-center justify-around">
             <button
               onClick={() => setActiveTab('chat')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'chat'
                   ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <MessageCircle className="w-6 h-6" />
+              <MessageCircle className="w-5 h-5" />
               <span className="text-xs font-medium">Chat</span>
             </button>
             <button
               onClick={() => setActiveTab('mood')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'mood'
                   ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <Heart className="w-6 h-6" />
+              <Heart className="w-5 h-5" />
               <span className="text-xs font-medium">Mood</span>
             </button>
             <button
               onClick={() => setActiveTab('memories')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'memories'
                   ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <ImageIcon className="w-6 h-6" />
+              <ImageIcon className="w-5 h-5" />
               <span className="text-xs font-medium">Memories</span>
             </button>
             <button
               onClick={() => setActiveTab('prompts')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'prompts'
                   ? 'bg-gradient-to-br brand-coral text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <MessageSquare className="w-6 h-6" />
+              <MessageSquare className="w-5 h-5" />
               <span className="text-xs font-medium">Prompts</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
+                activeTab === 'calendar'
+                  ? 'bg-gradient-to-br brand-coral text-white'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <CalendarIcon className="w-5 h-5" />
+              <span className="text-xs font-medium">Calendar</span>
             </button>
           </div>
         </div>
