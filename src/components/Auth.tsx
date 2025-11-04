@@ -24,13 +24,36 @@ export default function Auth({ onDemoMode }: AuthProps) {
     setLoading(true);
 
     try {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        setError('Please enter a valid email address');
+        setLoading(false);
+        return;
+      }
+
+      // Validate password length
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters long');
+        setLoading(false);
+        return;
+      }
+
       if (isSignUp) {
-        await signUp(email, password, displayName, timezone);
+        if (!displayName.trim()) {
+          setError('Please enter a display name');
+          setLoading(false);
+          return;
+        }
+        await signUp(email.trim().toLowerCase(), password, displayName.trim(), timezone);
       } else {
-        await signIn(email, password);
+        await signIn(email.trim().toLowerCase(), password);
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      // More detailed error messages
+      const errorMessage = err.message || err.error?.message || 'An error occurred. Please try again.';
+      setError(errorMessage);
+      console.error('Authentication error:', err);
     } finally {
       setLoading(false);
     }
@@ -112,14 +135,33 @@ export default function Auth({ onDemoMode }: AuthProps) {
             {isSignUp && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
-                <input
-                  type="text"
+                <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
                   required
                   className="w-full px-4 py-3 rounded-xl border border-brand-blush/30 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none transition-all bg-white"
-                  placeholder="America/New_York"
-                />
+                >
+                  <option value="America/New_York">Eastern Time (ET)</option>
+                  <option value="America/Chicago">Central Time (CT)</option>
+                  <option value="America/Denver">Mountain Time (MT)</option>
+                  <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                  <option value="America/Anchorage">Alaska Time (AKT)</option>
+                  <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+                  <option value="Europe/London">London (GMT)</option>
+                  <option value="Europe/Paris">Paris (CET)</option>
+                  <option value="Europe/Berlin">Berlin (CET)</option>
+                  <option value="Asia/Tokyo">Tokyo (JST)</option>
+                  <option value="Asia/Shanghai">Shanghai (CST)</option>
+                  <option value="Asia/Dubai">Dubai (GST)</option>
+                  <option value="Australia/Sydney">Sydney (AEST)</option>
+                  <option value="America/Sao_Paulo">São Paulo (BRT)</option>
+                  <option value="America/Mexico_City">Mexico City (CST)</option>
+                  <option value="America/Toronto">Toronto (ET)</option>
+                  <option value="Europe/Moscow">Moscow (MSK)</option>
+                  <option value="Asia/Kolkata">Mumbai (IST)</option>
+                  <option value="Asia/Singapore">Singapore (SGT)</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">We'll use this to show both your times</p>
               </div>
             )}
 

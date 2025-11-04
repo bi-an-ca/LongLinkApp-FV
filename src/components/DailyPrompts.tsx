@@ -61,23 +61,36 @@ export default function DailyPrompts() {
     setLoading(true);
     try {
       if (myResponse) {
-        await supabase
+        const { error } = await supabase
           .from('prompt_responses')
           .update({
-            response: responseText,
+            response: responseText.trim(),
           })
           .eq('id', myResponse.id);
+
+        if (error) {
+          console.error('Error updating response:', error);
+          alert('Failed to update response. Please try again.');
+          return;
+        }
       } else {
-        await supabase.from('prompt_responses').insert({
+        const { error } = await supabase.from('prompt_responses').insert({
           prompt_id: todayPrompt.id,
           user_id: profile.id,
-          response: responseText,
+          response: responseText.trim(),
         });
+
+        if (error) {
+          console.error('Error creating response:', error);
+          alert('Failed to submit response. Please try again.');
+          return;
+        }
       }
 
       loadTodayPrompt();
     } catch (error) {
       console.error('Error submitting response:', error);
+      alert('Failed to submit response. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -102,7 +115,7 @@ export default function DailyPrompts() {
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="bg-gradient-to-br brand-light to-white rounded-3xl shadow-xl p-8">
+      <div className="bg-gradient-to-br from-brand-light to-white rounded-3xl shadow-xl p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
             <MessageSquare className="w-6 h-6 text-brand-coral500" />
@@ -135,7 +148,7 @@ export default function DailyPrompts() {
         <button
           onClick={handleSubmitResponse}
           disabled={!responseText.trim() || loading}
-          className="w-full bg-gradient-to-r brand-coral text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
         >
           {loading ? (
             'Saving...'
@@ -151,7 +164,7 @@ export default function DailyPrompts() {
       {partnerResponse && (
         <div className="bg-white rounded-3xl shadow-xl p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 bg-gradient-to-br from-brand-coral to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
               {partner?.display_name.charAt(0).toUpperCase()}
             </div>
             <div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { MessageCircle, Heart, ImageIcon, MessageSquare, LogOut, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import Logo from './Logo';
@@ -13,11 +13,21 @@ type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar';
 
 export default function MainApp() {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { profile, partner, signOut } = useAuth();
+
+  // Update time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
 
   const getTimeInTimezone = (timezone: string) => {
     try {
-      return new Date().toLocaleTimeString('en-US', {
+      return currentTime.toLocaleTimeString('en-US', {
         timeZone: timezone,
         hour: 'numeric',
         minute: '2-digit',
@@ -38,6 +48,7 @@ export default function MainApp() {
               onClick={signOut}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               title="Sign out"
+              aria-label="Sign out"
             >
               <LogOut className="w-5 h-5 text-gray-600" />
             </button>
@@ -95,6 +106,8 @@ export default function MainApp() {
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Chat"
+              aria-pressed={activeTab === 'chat'}
             >
               <MessageCircle className="w-5 h-5" />
               <span className="text-xs font-medium">Chat</span>
@@ -106,6 +119,8 @@ export default function MainApp() {
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Mood Check-in"
+              aria-pressed={activeTab === 'mood'}
             >
               <Heart className="w-5 h-5" />
               <span className="text-xs font-medium">Mood</span>
@@ -117,6 +132,8 @@ export default function MainApp() {
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Memories"
+              aria-pressed={activeTab === 'memories'}
             >
               <ImageIcon className="w-5 h-5" />
               <span className="text-xs font-medium">Memories</span>
@@ -128,6 +145,8 @@ export default function MainApp() {
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Daily Prompts"
+              aria-pressed={activeTab === 'prompts'}
             >
               <MessageSquare className="w-5 h-5" />
               <span className="text-xs font-medium">Prompts</span>
@@ -139,6 +158,8 @@ export default function MainApp() {
                   ? 'bg-brand-coral text-white shadow-md'
                   : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Calendar"
+              aria-pressed={activeTab === 'calendar'}
             >
               <CalendarIcon className="w-5 h-5" />
               <span className="text-xs font-medium">Calendar</span>

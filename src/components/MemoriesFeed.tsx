@@ -55,25 +55,46 @@ export default function MemoriesFeed() {
 
     setLoading(true);
     try {
-      await supabase.from('memories').insert({
+      const { error } = await supabase.from('memories').insert({
         user_id: profile.id,
         partner_id: partner.id,
         type: 'note',
         content: newContent,
       });
 
+      if (error) {
+        console.error('Error creating memory:', error);
+        alert('Failed to create memory. Please try again.');
+        return;
+      }
+
       setNewContent('');
       setShowCreate(false);
     } catch (error) {
       console.error('Error creating memory:', error);
+      alert('Failed to create memory. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteMemory = async (memoryId: string) => {
-    await supabase.from('memories').delete().eq('id', memoryId);
-    loadMemories();
+    if (!confirm('Are you sure you want to delete this memory? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('memories').delete().eq('id', memoryId);
+      if (error) {
+        console.error('Error deleting memory:', error);
+        alert('Failed to delete memory. Please try again.');
+        return;
+      }
+      loadMemories();
+    } catch (error) {
+      console.error('Error deleting memory:', error);
+      alert('Failed to delete memory. Please try again.');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -99,7 +120,7 @@ export default function MemoriesFeed() {
         <h2 className="text-2xl font-bold text-gray-800">Our Memories</h2>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r brand-coral text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-coral to-pink-500 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
         >
           <Plus className="w-5 h-5" />
           <span className="text-sm font-medium">Add Memory</span>
@@ -120,7 +141,7 @@ export default function MemoriesFeed() {
             <button
               onClick={handleCreateMemory}
               disabled={!newContent.trim() || loading}
-              className="flex-1 bg-gradient-to-r brand-coral text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r from-brand-coral to-pink-500 text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save Memory'}
             </button>
@@ -153,7 +174,7 @@ export default function MemoriesFeed() {
             <div key={memory.id} className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br brand-coral rounded-full flex items-center justify-center text-white font-semibold">
+                  <div className="w-10 h-10 bg-gradient-to-br from-brand-coral to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
                     {author?.display_name.charAt(0).toUpperCase()}
                   </div>
                   <div>

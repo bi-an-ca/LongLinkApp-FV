@@ -54,42 +54,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadProfile = async (userId: string) => {
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle();
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
 
-    if (profileData) {
-      setProfile(profileData);
+      if (profileError) {
+        console.error('Error loading profile:', profileError);
+        return;
+      }
 
-      if (profileData.partner_id) {
-        const { data: partnerData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', profileData.partner_id)
-          .maybeSingle();
+      if (profileData) {
+        setProfile(profileData);
 
-        if (partnerData) {
-          setPartner(partnerData);
+        if (profileData.partner_id) {
+          const { data: partnerData, error: partnerError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', profileData.partner_id)
+            .maybeSingle();
+
+          if (partnerError) {
+            console.error('Error loading partner:', partnerError);
+          } else if (partnerData) {
+            setPartner(partnerData);
+          }
+        } else {
+          setPartner(null);
+        }
+      } else {
+        // Profile doesn't exist, create it
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: userData.user.email || '',
+              display_name: userData.user.email?.split('@')[0] || 'User',
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            });
+
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          } else {
+            await loadProfile(userId);
+          }
         }
       }
-    } else {
-      const { data: userData } = await supabase.auth.getUser();
-      if (userData.user) {
-        const { error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            id: userId,
-            email: userData.user.email || '',
-            display_name: userData.user.email?.split('@')[0] || 'User',
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          });
-
-        if (!createError) {
-          await loadProfile(userId);
-        }
-      }
+    } catch (error) {
+      console.error('Unexpected error in loadProfile:', error);
     }
   };
 
@@ -116,12 +132,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
       password,
     });
 
-    if (error) throw error;
+    if (error) {
+      // Provide more helpful error messages
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
+      } else if (error.message.includes('Email not confirmed')) {
+        throw new Error('Please verify your email address before signing in.');
+      } else {
+        throw new Error(error.message || 'Failed to sign in. Please try again.');
+      }
+    }
+
+    // Ensure profile exists after sign in
+    if (data.user) {
+      await loadProfile(data.user.id);
+    }
   };
 
   const signOut = async () => {

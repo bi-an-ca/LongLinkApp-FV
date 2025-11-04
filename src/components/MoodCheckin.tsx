@@ -64,25 +64,38 @@ export default function MoodCheckin() {
       const today = new Date().toISOString().split('T')[0];
 
       if (myMood) {
-        await supabase
+        const { error } = await supabase
           .from('mood_checkins')
           .update({
             mood: selectedMood,
-            note: note,
+            note: note.trim(),
           })
           .eq('id', myMood.id);
+
+        if (error) {
+          console.error('Error updating mood:', error);
+          alert('Failed to update mood. Please try again.');
+          return;
+        }
       } else {
-        await supabase.from('mood_checkins').insert({
+        const { error } = await supabase.from('mood_checkins').insert({
           user_id: profile.id,
           mood: selectedMood,
-          note: note,
+          note: note.trim(),
           date: today,
         });
+
+        if (error) {
+          console.error('Error saving mood:', error);
+          alert('Failed to save mood. Please try again.');
+          return;
+        }
       }
 
       loadMoods();
     } catch (error) {
       console.error('Error saving mood:', error);
+      alert('Failed to save mood. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -130,7 +143,7 @@ export default function MoodCheckin() {
         <button
           onClick={handleSaveMood}
           disabled={!selectedMood || loading}
-          className="w-full bg-gradient-to-r brand-coral text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg"
+          className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg"
         >
           {loading ? 'Saving...' : myMood ? 'Update Mood' : 'Save Mood'}
         </button>

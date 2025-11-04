@@ -66,27 +66,43 @@ export default function Chat() {
 
     setLoading(true);
     try {
-      await supabase.from('chat_messages').insert({
+      const { error } = await supabase.from('chat_messages').insert({
         sender_id: profile.id,
         receiver_id: partner.id,
-        content: newMessage,
+        content: newMessage.trim(),
       });
+
+      if (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+        return;
+      }
 
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleReaction = async (messageId: string, emoji: string) => {
-    await supabase
-      .from('chat_messages')
-      .update({ reaction: emoji })
-      .eq('id', messageId);
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .update({ reaction: emoji })
+        .eq('id', messageId);
 
-    loadMessages();
+      if (error) {
+        console.error('Error adding reaction:', error);
+        return;
+      }
+
+      loadMessages();
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+    }
   };
 
   if (!partner) {
@@ -112,7 +128,7 @@ export default function Chat() {
                 <div
                   className={`rounded-2xl px-4 py-2 ${
                     isMine
-                      ? 'bg-gradient-to-br brand-coral text-white'
+                      ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white'
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
@@ -178,7 +194,7 @@ export default function Chat() {
           <button
             type="submit"
             disabled={loading || !newMessage.trim()}
-            className="p-2 bg-gradient-to-br brand-coral text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
+            className="p-2 bg-gradient-to-br from-brand-coral to-pink-500 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
           >
             <Send className="w-6 h-6" />
           </button>
