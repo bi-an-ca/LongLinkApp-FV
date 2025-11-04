@@ -51,9 +51,30 @@ export default function Auth({ onDemoMode }: AuthProps) {
       }
     } catch (err: any) {
       // More detailed error messages
-      const errorMessage = err.message || err.error?.message || 'An error occurred. Please try again.';
+      console.error('Full authentication error object:', err);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+      
+      let errorMessage = 'An error occurred. Please try again.';
+      
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.error?.message) {
+        errorMessage = err.error.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      
+      // Check for specific Supabase errors
+      if (err.status === 400 || err.message?.includes('Invalid')) {
+        errorMessage = 'Invalid email or password. Please check your credentials.';
+      } else if (err.message?.includes('network') || err.message?.includes('fetch')) {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (err.message?.includes('rate limit')) {
+        errorMessage = 'Too many attempts. Please wait a moment and try again.';
+      }
+      
       setError(errorMessage);
-      console.error('Authentication error:', err);
     } finally {
       setLoading(false);
     }

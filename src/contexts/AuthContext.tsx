@@ -55,6 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
+      console.log('Loading profile for user:', userId);
+      
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -63,11 +65,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (profileError) {
         console.error('Error loading profile:', profileError);
+        console.error('Profile error details:', {
+          message: profileError.message,
+          details: profileError.details,
+          hint: profileError.hint,
+          code: profileError.code
+        });
         return;
       }
 
+      console.log('Profile data received:', profileData ? 'Found' : 'Not found');
+
       if (profileData) {
         setProfile(profileData);
+        console.log('Profile set:', profileData.display_name);
 
         if (profileData.partner_id) {
           const { data: partnerData, error: partnerError } = await supabase
@@ -80,12 +91,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.error('Error loading partner:', partnerError);
           } else if (partnerData) {
             setPartner(partnerData);
+            console.log('Partner set:', partnerData.display_name);
           }
         } else {
           setPartner(null);
         }
       } else {
         // Profile doesn't exist, create it
+        console.log('Profile not found, creating new profile...');
         const { data: userData } = await supabase.auth.getUser();
         if (userData.user) {
           const { error: createError } = await supabase
@@ -99,9 +112,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (createError) {
             console.error('Error creating profile:', createError);
+            console.error('Create profile error details:', {
+              message: createError.message,
+              details: createError.details,
+              hint: createError.hint,
+              code: createError.code
+            });
           } else {
+            console.log('Profile created successfully, reloading...');
             await loadProfile(userId);
           }
+        } else {
+          console.error('No user data available to create profile');
         }
       }
     } catch (error) {
@@ -132,25 +154,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('Attempting sign in with email:', email.trim().toLowerCase());
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password,
     });
 
     if (error) {
+      console.error('Sign in error:', error);
       // Provide more helpful error messages
-      if (error.message.includes('Invalid login credentials')) {
+      if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid credentials')) {
         throw new Error('Invalid email or password. Please check your credentials and try again.');
-      } else if (error.message.includes('Email not confirmed')) {
-        throw new Error('Please verify your email address before signing in.');
+      } else if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+        throw new Error('Please verify your email address before signing in. Check your inbox for a confirmation email.');
+      } else if (error.message.includes('User not found')) {
+        throw new Error('No account found with this email. Please sign up first.');
       } else {
         throw new Error(error.message || 'Failed to sign in. Please try again.');
       }
     }
 
+    console.log('Sign in successful, user:', data.user?.id);
+
     // Ensure profile exists after sign in
     if (data.user) {
+      // Wait a bit for session to be fully established
+      await new Promise(resolve => setTimeout(resolve, 100));
       await loadProfile(data.user.id);
+      
+      // Force a session refresh to ensure state updates
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setSession(session);
+        setUser(session.user);
+      }
+    } else {
+      throw new Error('Sign in succeeded but no user data received. Please try again.');
     }
   };
 

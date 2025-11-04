@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import Auth from './components/Auth';
@@ -9,6 +9,18 @@ import DemoMode from './components/DemoMode';
 function AppContent() {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const { user, profile, partner, loading } = useAuth();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('AppContent state:', {
+      hasUser: !!user,
+      hasProfile: !!profile,
+      hasPartner: !!partner,
+      loading,
+      userId: user?.id,
+      profileId: profile?.id
+    });
+  }, [user, profile, partner, loading]);
 
   if (isDemoMode) {
     return <DemoMode onExit={() => setIsDemoMode(false)} />;

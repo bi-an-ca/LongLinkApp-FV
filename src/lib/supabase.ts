@@ -6,10 +6,23 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.'
-  );
+  const errorMsg = 'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.';
+  console.error(errorMsg);
+  console.error('Current env check:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    urlLength: supabaseUrl?.length || 0,
+    keyLength: supabaseAnonKey?.length || 0
+  });
+  throw new Error(errorMsg);
 }
+
+// Log connection info (without sensitive data)
+console.log('Supabase connection initialized:', {
+  url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'missing',
+  hasKey: !!supabaseAnonKey,
+  keyLength: supabaseAnonKey?.length || 0
+});
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
