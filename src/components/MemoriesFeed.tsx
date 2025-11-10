@@ -12,7 +12,7 @@ export default function MemoriesFeed() {
   const { profile, partner } = useAuth();
 
   useEffect(() => {
-    if (profile) {
+    if (profile && partner) {
       loadMemories();
 
       const channel = supabase
@@ -37,17 +37,13 @@ export default function MemoriesFeed() {
   }, [profile, partner]);
 
   const loadMemories = async () => {
-    if (!profile) return;
+    if (!profile || !partner) return;
 
-    let query = supabase.from('memories').select('*');
-
-    if (partner) {
-      query = query.or(`user_id.eq.${profile.id},user_id.eq.${partner.id}`);
-    } else {
-      query = query.eq('user_id', profile.id);
-    }
-
-    const { data } = await query.order('created_at', { ascending: false });
+    const { data } = await supabase
+      .from('memories')
+      .select('*')
+      .or(`user_id.eq.${profile.id},user_id.eq.${partner.id}`)
+      .order('created_at', { ascending: false });
 
     if (data) {
       setMemories(data);
@@ -55,13 +51,13 @@ export default function MemoriesFeed() {
   };
 
   const handleCreateMemory = async () => {
-    if (!newContent.trim() || !profile || loading) return;
+    if (!newContent.trim() || !profile || !partner || loading) return;
 
     setLoading(true);
     try {
       const { error } = await supabase.from('memories').insert({
         user_id: profile.id,
-        partner_id: partner?.id || null,
+        partner_id: partner.id,
         type: 'note',
         content: newContent,
       });
@@ -110,12 +106,18 @@ export default function MemoriesFeed() {
     });
   };
 
+  if (!partner) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Please link with your partner to create memories</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">
-          {partner ? 'Our Memories' : 'My Memories'}
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800">Our Memories</h2>
         <button
           onClick={() => setShowCreate(!showCreate)}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-coral to-pink-500 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg"
@@ -160,17 +162,13 @@ export default function MemoriesFeed() {
         {memories.length === 0 && (
           <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
             <Heart className="w-16 h-16 text-pink-300 mx-auto mb-4" />
-            <p className="text-gray-500">
-              {partner 
-                ? "No memories yet. Start creating your story together!" 
-                : "No memories yet. Start capturing your moments!"}
-            </p>
+            <p className="text-gray-500">No memories yet. Start creating your story together!</p>
           </div>
         )}
 
         {memories.map((memory) => {
           const isMyMemory = memory.user_id === profile?.id;
-          const author = isMyMemory ? profile : (partner || profile);
+          const author = isMyMemory ? profile : partner;
 
           return (
             <div key={memory.id} className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow">

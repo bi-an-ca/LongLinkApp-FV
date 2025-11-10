@@ -103,7 +103,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          partner_id: string | null
+          partner_id: string
           type: string
           content: string
           media_url: string
@@ -112,7 +112,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          partner_id: string | null
+          partner_id: string
           type?: string
           content?: string
           media_url?: string
@@ -121,7 +121,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          partner_id?: string | null
+          partner_id?: string
           type?: string
           content?: string
           media_url?: string

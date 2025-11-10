@@ -83,24 +83,17 @@ export default function MainApp() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
-        {!partner && (
-          <div className="mb-6 bg-gradient-to-r from-brand-coral/10 to-pink-100 rounded-2xl p-4 border border-brand-coral/20">
-            <div className="flex items-start gap-3">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 mb-1">No Partner Linked Yet</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  You can still use most features! Link with your partner to unlock shared features like chat and partner mood check-ins.
-                </p>
-                <PendingPartner />
-              </div>
-            </div>
-          </div>
+        {!partner ? (
+          <PendingPartner />
+        ) : (
+          <>
+            {activeTab === 'chat' && <Chat />}
+            {activeTab === 'mood' && <MoodCheckin />}
+            {activeTab === 'memories' && <MemoriesFeed />}
+            {activeTab === 'prompts' && <DailyPrompts />}
+            {activeTab === 'calendar' && <Calendar />}
+          </>
         )}
-        {activeTab === 'chat' && <Chat />}
-        {activeTab === 'mood' && <MoodCheckin />}
-        {activeTab === 'memories' && <MemoriesFeed />}
-        {activeTab === 'prompts' && <DailyPrompts />}
-        {activeTab === 'calendar' && <Calendar />}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">
