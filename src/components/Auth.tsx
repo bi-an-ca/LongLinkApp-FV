@@ -15,12 +15,14 @@ export default function Auth({ onDemoMode }: AuthProps) {
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const { signUp, signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
 
     try {
@@ -46,6 +48,11 @@ export default function Auth({ onDemoMode }: AuthProps) {
           return;
         }
         await signUp(email.trim().toLowerCase(), password, displayName.trim(), timezone);
+        setSuccessMessage('Account created! Please check your email to verify your account before signing in.');
+        setEmail('');
+        setPassword('');
+        setDisplayName('');
+        setIsSignUp(false);
       } else {
         await signIn(email.trim().toLowerCase(), password);
       }
@@ -110,6 +117,12 @@ export default function Auth({ onDemoMode }: AuthProps) {
               Sign Up
             </button>
           </div>
+
+          {!isSignUp && (
+            <div className="mb-4 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+              <strong>Note:</strong> You must verify your email before signing in. Check your inbox for a confirmation link after signing up.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
@@ -188,6 +201,10 @@ export default function Auth({ onDemoMode }: AuthProps) {
 
             {error && (
               <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
+            )}
+
+            {successMessage && (
+              <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg">{successMessage}</div>
             )}
 
             <button
