@@ -83,17 +83,13 @@ export default function MainApp() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
-        {!partner ? (
-          <PendingPartner />
-        ) : (
-          <>
-            {activeTab === 'chat' && <Chat />}
-            {activeTab === 'mood' && <MoodCheckin />}
-            {activeTab === 'memories' && <MemoriesFeed />}
-            {activeTab === 'prompts' && <DailyPrompts />}
-            {activeTab === 'calendar' && <Calendar />}
-          </>
-        )}
+        {!partner && <PendingPartner />}
+
+        {activeTab === 'chat' && <Chat />}
+        {activeTab === 'mood' && <MoodCheckin />}
+        {activeTab === 'memories' && <MemoriesFeed />}
+        {activeTab === 'prompts' && <DailyPrompts />}
+        {activeTab === 'calendar' && <Calendar />}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">

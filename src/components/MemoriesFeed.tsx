@@ -106,7 +106,7 @@ export default function MemoriesFeed() {
     });
   };
 
-  if (!partner) {
+  if (false) { // Allow solo use
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Please link with your partner to create memories</p>

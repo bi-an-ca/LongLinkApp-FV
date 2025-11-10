@@ -13,13 +13,13 @@ export default function DailyPrompts() {
   const { profile, partner } = useAuth();
 
   useEffect(() => {
-    if (profile && partner) {
+    if (profile) {
       loadTodayPrompt();
     }
   }, [profile, partner]);
 
   const loadTodayPrompt = async () => {
-    if (!profile || !partner) return;
+    if (!profile) return;
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -39,12 +39,66 @@ export default function DailyPrompts() {
         .eq('user_id', profile.id)
         .maybeSingle();
 
-      const { data: partnerResponseData } = await supabase
-        .from('prompt_responses')
-        .select('*')
-        .eq('prompt_id', promptData.id)
-        .eq('user_id', partner.id)
-        .maybeSingle();
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        setPartnerResponse(partnerResponseData);
+      }
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        setPartnerResponse(partnerResponseData);
+      }
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        setPartnerResponse(partnerResponseData);
+      }
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        setPartnerResponse(partnerResponseData);
+      }
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        setPartnerResponse(partnerResponseData);
+      }
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        setPartnerResponse(partnerResponseData);
+      }
 
       setMyResponse(myResponseData);
       setPartnerResponse(partnerResponseData);
@@ -96,7 +150,7 @@ export default function DailyPrompts() {
     }
   };
 
-  if (!partner) {
+  if (false) { // Allow solo use
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Please link with your partner to see daily prompts</p>

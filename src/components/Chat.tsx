@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ChatMessage } from '../lib/database.types';
-import { Send, Smile, Image as ImageIcon } from 'lucide-react';
+import { Send, Smile, Image as ImageIcon, MessageCircle } from 'lucide-react';
 
-const EMOJI_REACTIONS = ['❤️', '😊', '😂', '🥰', '😢', '👍'];
+const EMOJI_REACTIONS = ['❤️', '😊', '😂', '🰰', '😢', '👍'];
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -107,8 +107,11 @@ export default function Chat() {
 
   if (!partner) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Please link with your partner to start chatting</p>
+      <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
+        <MessageCircle className="w-16 h-16 text-brand-coral/50 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">Chat with Your Partner</h3>
+        <p className="text-gray-500 mb-4">Link with your partner to start messaging</p>
+        <p className="text-sm text-gray-400">Once linked, you'll be able to send messages, reactions, and share moments together</p>
       </div>
     );
   }
