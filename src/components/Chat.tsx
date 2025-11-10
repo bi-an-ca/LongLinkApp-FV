@@ -107,8 +107,15 @@ export default function Chat() {
 
   if (!partner) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Please link with your partner to start chatting</p>
+      <div className="bg-white rounded-3xl shadow-xl p-8 text-center">
+        <MessageCircle className="w-16 h-16 text-brand-coral/30 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">Chat with Your Partner</h2>
+        <p className="text-gray-600 mb-4">
+          Link with your partner to start chatting and sharing messages in real-time.
+        </p>
+        <p className="text-sm text-gray-500">
+          Once you're connected, you'll be able to send messages, react with emojis, and stay in touch throughout your day.
+        </p>
       </div>
     );
   }

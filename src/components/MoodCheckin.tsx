@@ -23,13 +23,13 @@ export default function MoodCheckin() {
   const { profile, partner } = useAuth();
 
   useEffect(() => {
-    if (profile && partner) {
+    if (profile) {
       loadMoods();
     }
   }, [profile, partner]);
 
   const loadMoods = async () => {
-    if (!profile || !partner) return;
+    if (!profile) return;
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -40,15 +40,19 @@ export default function MoodCheckin() {
       .eq('date', today)
       .maybeSingle();
 
-    const { data: partnerMoodData } = await supabase
-      .from('mood_checkins')
-      .select('*')
-      .eq('user_id', partner.id)
-      .eq('date', today)
-      .maybeSingle();
+    if (partner) {
+      const { data: partnerMoodData } = await supabase
+        .from('mood_checkins')
+        .select('*')
+        .eq('user_id', partner.id)
+        .eq('date', today)
+        .maybeSingle();
+      setPartnerMood(partnerMoodData);
+    } else {
+      setPartnerMood(null);
+    }
 
     setMyMood(myMoodData);
-    setPartnerMood(partnerMoodData);
 
     if (myMoodData) {
       setSelectedMood(myMoodData.mood);

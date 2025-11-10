@@ -13,13 +13,13 @@ export default function DailyPrompts() {
   const { profile, partner } = useAuth();
 
   useEffect(() => {
-    if (profile && partner) {
+    if (profile) {
       loadTodayPrompt();
     }
   }, [profile, partner]);
 
   const loadTodayPrompt = async () => {
-    if (!profile || !partner) return;
+    if (!profile) return;
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -39,15 +39,19 @@ export default function DailyPrompts() {
         .eq('user_id', profile.id)
         .maybeSingle();
 
-      const { data: partnerResponseData } = await supabase
-        .from('prompt_responses')
-        .select('*')
-        .eq('prompt_id', promptData.id)
-        .eq('user_id', partner.id)
-        .maybeSingle();
+      if (partner) {
+        const { data: partnerResponseData } = await supabase
+          .from('prompt_responses')
+          .select('*')
+          .eq('prompt_id', promptData.id)
+          .eq('user_id', partner.id)
+          .maybeSingle();
+        setPartnerResponse(partnerResponseData);
+      } else {
+        setPartnerResponse(null);
+      }
 
       setMyResponse(myResponseData);
-      setPartnerResponse(partnerResponseData);
 
       if (myResponseData) {
         setResponseText(myResponseData.response);
@@ -96,18 +100,10 @@ export default function DailyPrompts() {
     }
   };
 
-  if (!partner) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Please link with your partner to see daily prompts</p>
-      </div>
-    );
-  }
-
   if (!todayPrompt) {
     return (
       <div className="text-center py-12">
-        <MessageSquare className="w-16 h-16 text-brand-coral300 mx-auto mb-4" />
+        <MessageSquare className="w-16 h-16 text-brand-coral/30 mx-auto mb-4" />
         <p className="text-gray-500">No prompt available for today</p>
       </div>
     );
