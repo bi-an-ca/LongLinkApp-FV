@@ -101,8 +101,8 @@ export default function Chat() {
     if (!profile || !partner) return null;
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
-    const filePath = `chat/${fileName}`;
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `${profile.id}/${fileName}`;
 
     setUploadingImage(true);
     try {

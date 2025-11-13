@@ -89,8 +89,8 @@ export default function MemoriesFeed() {
     if (!profile) return null;
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
-    const filePath = `memories/${fileName}`;
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `${profile.id}/${fileName}`;
 
     setUploadingImage(true);
     try {
