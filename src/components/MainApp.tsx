@@ -44,7 +44,17 @@ export default function MainApp() {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <Logo size="sm" showText={true} textStyle="horizontal" />
+            <div className="flex-1">
+              <Logo size="sm" showText={true} textStyle="horizontal" />
+              {partner && (
+                <div className="flex items-center gap-2 mt-1">
+                  <Heart className="w-3 h-3 text-brand-coral fill-brand-coral" />
+                  <p className="text-xs font-medium text-brand-coral">
+                    Linked with <span className="font-semibold">{partner.display_name}</span>
+                  </p>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveTab('profile')}
