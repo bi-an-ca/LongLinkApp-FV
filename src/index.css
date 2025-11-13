@@ -5,9 +5,15 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-accent: #F7838D;
+    --color-background: #FFECF2;
+    --color-blush: #FAC2C6;
+  }
+
   body {
     @apply font-arimo antialiased;
-    background: #FFECF2;
+    background: var(--color-background);
   }
 
   h1, h2, h3, h4, h5, h6 {

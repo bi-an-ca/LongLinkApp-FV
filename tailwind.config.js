@@ -5,9 +5,9 @@ export default {
     extend: {
       colors: {
         brand: {
-          coral: '#F7838D',
-          light: '#FFECF2',
-          blush: '#FAC2C6',
+          coral: 'var(--color-accent)',
+          light: 'var(--color-background)',
+          blush: 'var(--color-blush)',
         },
       },
       fontFamily: {

@@ -18,6 +18,9 @@ export interface Database {
           partner_id: string | null
           avatar_url: string
           invite_code: string | null
+          theme_accent_color: string | null
+          theme_background_color: string | null
+          theme_blush_color: string | null
           created_at: string
           updated_at: string
         }
@@ -29,6 +32,9 @@ export interface Database {
           partner_id?: string | null
           avatar_url?: string
           invite_code?: string | null
+          theme_accent_color?: string | null
+          theme_background_color?: string | null
+          theme_blush_color?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -40,6 +46,9 @@ export interface Database {
           partner_id?: string | null
           avatar_url?: string
           invite_code?: string | null
+          theme_accent_color?: string | null
+          theme_background_color?: string | null
+          theme_blush_color?: string | null
           created_at?: string
           updated_at?: string
         }

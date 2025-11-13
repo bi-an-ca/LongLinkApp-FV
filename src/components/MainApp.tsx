@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { MessageCircle, Heart, ImageIcon, MessageSquare, LogOut, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { MessageCircle, Heart, ImageIcon, MessageSquare, LogOut, Clock, Calendar as CalendarIcon, User } from 'lucide-react';
 import Logo from './Logo';
 import Chat from './Chat';
 import MoodCheckin from './MoodCheckin';
@@ -8,8 +8,9 @@ import MemoriesFeed from './MemoriesFeed';
 import DailyPrompts from './DailyPrompts';
 import Calendar from './Calendar';
 import PendingPartner from './PendingPartner';
+import Profile from './Profile';
 
-type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar';
+type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar' | 'profile';
 
 export default function MainApp() {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
@@ -44,14 +45,28 @@ export default function MainApp() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <Logo size="sm" showText={true} textStyle="horizontal" />
-            <button
-              onClick={signOut}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              title="Sign out"
-              aria-label="Sign out"
-            >
-              <LogOut className="w-5 h-5 text-gray-600" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`p-2 rounded-full transition-colors ${
+                  activeTab === 'profile'
+                    ? 'bg-brand-coral text-white'
+                    : 'hover:bg-gray-100 text-gray-600'
+                }`}
+                title="Profile"
+                aria-label="Profile"
+              >
+                <User className="w-5 h-5" />
+              </button>
+              <button
+                onClick={signOut}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm bg-white/60 rounded-2xl p-4 border border-brand-blush/30">
@@ -90,6 +105,7 @@ export default function MainApp() {
         {activeTab === 'memories' && <MemoriesFeed />}
         {activeTab === 'prompts' && <DailyPrompts />}
         {activeTab === 'calendar' && <Calendar />}
+        {activeTab === 'profile' && <Profile />}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">
