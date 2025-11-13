@@ -26,6 +26,26 @@ export default function MoodCheckin() {
   useEffect(() => {
     if (profile) {
       loadMoods();
+
+      // Subscribe to mood check-in updates
+      const channel = supabase
+        .channel('mood_checkins')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'mood_checkins',
+          },
+          () => {
+            loadMoods();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [profile, partner]);
 

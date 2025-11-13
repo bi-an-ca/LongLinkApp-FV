@@ -53,6 +53,97 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Subscribe to partner profile updates in real-time
+  useEffect(() => {
+    if (!profile?.partner_id) {
+      setPartner(null);
+      return;
+    }
+
+    // Load partner initially
+    const loadPartner = async () => {
+      const { data: partnerData, error: partnerError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profile.partner_id)
+        .maybeSingle();
+
+      if (partnerError) {
+        console.error('Error loading partner:', partnerError);
+      } else if (partnerData) {
+        setPartner(partnerData);
+      }
+    };
+
+    loadPartner();
+
+    // Subscribe to partner profile changes
+    const channel = supabase
+      .channel(`partner_profile_${profile.partner_id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${profile.partner_id}`,
+        },
+        (payload) => {
+          console.log('Partner profile updated:', payload.new);
+          setPartner(payload.new as Profile);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.partner_id]);
+
+  // Subscribe to own profile updates (in case partner_id changes)
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const channel = supabase
+      .channel(`own_profile_${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${profile.id}`,
+        },
+        async (payload) => {
+          console.log('Own profile updated, reloading...', payload.new);
+          const updatedProfile = payload.new as Profile;
+          setProfile(updatedProfile);
+          
+          // If partner_id changed, reload partner
+          if (updatedProfile.partner_id) {
+            if (!partner || partner.id !== updatedProfile.partner_id) {
+              const { data: partnerData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', updatedProfile.partner_id)
+                .maybeSingle();
+              
+              if (partnerData) {
+                setPartner(partnerData);
+              }
+            }
+          } else {
+            setPartner(null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, partner?.id]);
+
   const loadProfile = async (userId: string) => {
     try {
       console.log('Loading profile for user:', userId);
@@ -213,13 +304,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const linkPartner = async (inviteCode: string) => {
     if (!user) return;
 
+    // Check if current user already has a partner
+    if (profile?.partner_id) {
+      throw new Error('You are already linked with a partner');
+    }
+
     const upperInviteCode = inviteCode.toUpperCase().trim();
 
-    const { data: partnerProfile } = await supabase
+    const { data: partnerProfile, error: partnerLookupError } = await supabase
       .from('profiles')
       .select('*')
       .eq('invite_code', upperInviteCode)
       .maybeSingle();
+
+    if (partnerLookupError) {
+      throw new Error('Failed to find partner. Please try again.');
+    }
 
     if (!partnerProfile) {
       throw new Error('No one found with that invite code');
@@ -229,19 +329,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('You cannot link with yourself');
     }
 
-    if (partnerProfile.partner_id) {
+    // Re-check partner status right before linking (helps prevent race conditions)
+    const { data: recheckPartner, error: recheckError } = await supabase
+      .from('profiles')
+      .select('partner_id')
+      .eq('id', partnerProfile.id)
+      .maybeSingle();
+
+    if (recheckError) {
+      throw new Error('Failed to verify partner status. Please try again.');
+    }
+
+    if (recheckPartner?.partner_id) {
       throw new Error('This person is already linked with someone else');
     }
 
-    await supabase
+    // Re-check current user's partner status
+    const { data: recheckCurrentUser, error: recheckCurrentError } = await supabase
+      .from('profiles')
+      .select('partner_id')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (recheckCurrentError) {
+      throw new Error('Failed to verify your status. Please try again.');
+    }
+
+    if (recheckCurrentUser?.partner_id) {
+      throw new Error('You are already linked with a partner');
+    }
+
+    // Update current user's partner_id
+    const { error: error1 } = await supabase
       .from('profiles')
       .update({ partner_id: partnerProfile.id })
       .eq('id', user.id);
 
-    await supabase
+    if (error1) {
+      throw new Error('Failed to link partner. Please try again.');
+    }
+
+    // Update partner's partner_id
+    const { error: error2 } = await supabase
       .from('profiles')
       .update({ partner_id: user.id })
       .eq('id', partnerProfile.id);
+
+    if (error2) {
+      // Rollback first update if second fails
+      await supabase
+        .from('profiles')
+        .update({ partner_id: null })
+        .eq('id', user.id);
+      throw new Error('Failed to complete partner link. Please try again.');
+    }
 
     await loadProfile(user.id);
   };

@@ -28,6 +28,26 @@ export default function Calendar() {
   useEffect(() => {
     if (user) {
       loadEvents();
+
+      // Subscribe to calendar event updates
+      const channel = supabase
+        .channel('calendar_events')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'calendar_events',
+          },
+          () => {
+            loadEvents();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user, currentDate]);
 

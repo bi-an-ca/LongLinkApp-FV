@@ -16,6 +16,26 @@ export default function DailyPrompts() {
   useEffect(() => {
     if (profile) {
       loadTodayPrompt();
+
+      // Subscribe to prompt response updates
+      const channel = supabase
+        .channel('prompt_responses')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'prompt_responses',
+          },
+          () => {
+            loadTodayPrompt();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [profile, partner]);
 
