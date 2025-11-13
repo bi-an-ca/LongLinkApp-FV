@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye } from 'lucide-react';
+import { Eye, Heart, MessageCircle, Calendar, Image, Sparkles } from 'lucide-react';
 import Logo from './Logo';
 
 interface AuthProps {
@@ -88,13 +88,79 @@ export default function Auth({ onDemoMode }: AuthProps) {
   };
 
   return (
-    <div className="min-h-screen bg-brand-light flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <Logo size="lg" showText={true} textStyle="vertical" />
+    <div className="min-h-screen bg-gradient-to-br from-brand-light via-white to-pink-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+        <div className="hidden lg:block space-y-8">
+          <div className="space-y-4">
+            <Logo size="lg" showText={true} textStyle="vertical" />
+            <h1 className="text-4xl font-bold text-gray-800 leading-tight">
+              Stay Connected,<br />No Matter the Distance
+            </h1>
+            <p className="text-lg text-gray-600">
+              Built for long-distance relationships. Share moments, track moods, and keep your connection strong across any timezone.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-brand-coral to-pink-500 rounded-xl flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1">Real-Time Chat</h3>
+                <p className="text-sm text-gray-600">Stay in touch with instant messaging and emoji reactions</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl flex items-center justify-center">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1">Mood Check-ins</h3>
+                <p className="text-sm text-gray-600">Share how you're feeling and stay emotionally connected</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-xl flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1">Reunion Countdown</h3>
+                <p className="text-sm text-gray-600">Track important dates and count down to your next visit</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
+                <Image className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1">Shared Memories</h3>
+                <p className="text-sm text-gray-600">Create a digital scrapbook of your journey together</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-400 to-purple-500 rounded-xl flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-1">Daily Prompts</h3>
+                <p className="text-sm text-gray-600">Deepen your bond with thoughtful conversation starters</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div>
+          <div className="lg:hidden mb-6 text-center space-y-3">
+            <Logo size="md" showText={true} textStyle="vertical" />
+            <p className="text-gray-600">Stay connected across any distance</p>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-xl p-8">
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => setIsSignUp(false)}
@@ -230,7 +296,30 @@ export default function Auth({ onDemoMode }: AuthProps) {
               </p>
             </div>
           )}
+
+          <div className="lg:hidden mt-8 pt-6 border-t border-gray-200">
+            <p className="text-center text-sm text-gray-600 mb-4">What you'll get:</p>
+            <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-brand-coral" />
+                <span>Real-time chat</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-brand-coral" />
+                <span>Mood tracking</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-brand-coral" />
+                <span>Event calendar</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Image className="w-4 h-4 text-brand-coral" />
+                <span>Memory sharing</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
       </div>
     </div>
   );
