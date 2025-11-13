@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { DailyPrompt, PromptResponse } from '../lib/database.types';
@@ -48,60 +49,11 @@ export default function DailyPrompts() {
           .maybeSingle();
 
         setPartnerResponse(partnerResponseData);
-      }
-      if (partner) {
-        const { data: partnerResponseData } = await supabase
-          .from('prompt_responses')
-          .select('*')
-          .eq('prompt_id', promptData.id)
-          .eq('user_id', partner.id)
-          .maybeSingle();
-
-        setPartnerResponse(partnerResponseData);
-      }
-      if (partner) {
-        const { data: partnerResponseData } = await supabase
-          .from('prompt_responses')
-          .select('*')
-          .eq('prompt_id', promptData.id)
-          .eq('user_id', partner.id)
-          .maybeSingle();
-
-        setPartnerResponse(partnerResponseData);
-      }
-      if (partner) {
-        const { data: partnerResponseData } = await supabase
-          .from('prompt_responses')
-          .select('*')
-          .eq('prompt_id', promptData.id)
-          .eq('user_id', partner.id)
-          .maybeSingle();
-
-        setPartnerResponse(partnerResponseData);
-      }
-      if (partner) {
-        const { data: partnerResponseData } = await supabase
-          .from('prompt_responses')
-          .select('*')
-          .eq('prompt_id', promptData.id)
-          .eq('user_id', partner.id)
-          .maybeSingle();
-
-        setPartnerResponse(partnerResponseData);
-      }
-      if (partner) {
-        const { data: partnerResponseData } = await supabase
-          .from('prompt_responses')
-          .select('*')
-          .eq('prompt_id', promptData.id)
-          .eq('user_id', partner.id)
-          .maybeSingle();
-
-        setPartnerResponse(partnerResponseData);
+      } else {
+        setPartnerResponse(null);
       }
 
       setMyResponse(myResponseData);
-      setPartnerResponse(partnerResponseData);
 
       if (myResponseData) {
         setResponseText(myResponseData.response);
@@ -124,9 +76,10 @@ export default function DailyPrompts() {
 
         if (error) {
           console.error('Error updating response:', error);
-          alert('Failed to update response. Please try again.');
+          toast.error('Failed to update response. Please try again.');
           return;
         }
+        toast.success('Response updated!');
       } else {
         const { error } = await supabase.from('prompt_responses').insert({
           prompt_id: todayPrompt.id,
@@ -136,15 +89,16 @@ export default function DailyPrompts() {
 
         if (error) {
           console.error('Error creating response:', error);
-          alert('Failed to submit response. Please try again.');
+          toast.error('Failed to submit response. Please try again.');
           return;
         }
+        toast.success('Response submitted!');
       }
 
       loadTodayPrompt();
     } catch (error) {
       console.error('Error submitting response:', error);
-      alert('Failed to submit response. Please try again.');
+      toast.error('Failed to submit response. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -161,7 +115,7 @@ export default function DailyPrompts() {
   if (!todayPrompt) {
     return (
       <div className="text-center py-12">
-        <MessageSquare className="w-16 h-16 text-brand-coral300 mx-auto mb-4" />
+        <MessageSquare className="w-16 h-16 text-brand-coral/30 mx-auto mb-4" />
         <p className="text-gray-500">No prompt available for today</p>
       </div>
     );

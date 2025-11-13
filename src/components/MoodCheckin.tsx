@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { MoodCheckin as MoodCheckinType } from '../lib/database.types';
@@ -77,9 +78,10 @@ export default function MoodCheckin() {
 
         if (error) {
           console.error('Error updating mood:', error);
-          alert('Failed to update mood. Please try again.');
+          toast.error('Failed to update mood. Please try again.');
           return;
         }
+        toast.success('Mood updated!');
       } else {
         const { error } = await supabase.from('mood_checkins').insert({
           user_id: profile.id,
@@ -90,15 +92,16 @@ export default function MoodCheckin() {
 
         if (error) {
           console.error('Error saving mood:', error);
-          alert('Failed to save mood. Please try again.');
+          toast.error('Failed to save mood. Please try again.');
           return;
         }
+        toast.success('Mood saved!');
       }
 
       loadMoods();
     } catch (error) {
       console.error('Error saving mood:', error);
-      alert('Failed to save mood. Please try again.');
+      toast.error('Failed to save mood. Please try again.');
     } finally {
       setLoading(false);
     }

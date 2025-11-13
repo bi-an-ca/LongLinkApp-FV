@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ChatMessage } from '../lib/database.types';
@@ -10,6 +11,10 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { profile, partner } = useAuth();
 
@@ -60,28 +65,106 @@ export default function Chat() {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    if (!profile || !partner) return null;
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
+    const filePath = `chat/${fileName}`;
+
+    setUploadingImage(true);
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('messages')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        toast.error('Failed to upload image. Please try again.');
+        return null;
+      }
+
+      const { data } = supabase.storage.from('messages').getPublicUrl(filePath);
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image. Please try again.');
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !profile || !partner || loading) return;
+    if ((!newMessage.trim() && !selectedImage) || !profile || !partner || loading || uploadingImage) return;
 
     setLoading(true);
     try {
+      let imageUrl = null;
+      if (selectedImage) {
+        imageUrl = await uploadImage(selectedImage);
+        if (!imageUrl) {
+          setLoading(false);
+          return;
+        }
+      }
+
       const { error } = await supabase.from('chat_messages').insert({
         sender_id: profile.id,
         receiver_id: partner.id,
         content: newMessage.trim(),
+        image_url: imageUrl || '',
+        status: 'sent',
       });
 
       if (error) {
         console.error('Error sending message:', error);
-        alert('Failed to send message. Please try again.');
+        toast.error('Failed to send message. Please try again.');
         return;
       }
 
       setNewMessage('');
+      removeImage();
+      toast.success('Message sent!');
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
+      toast.error('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -135,14 +218,15 @@ export default function Chat() {
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  {message.content && <p className="break-words">{message.content}</p>}
                   {message.image_url && (
                     <img
                       src={message.image_url}
                       alt="Shared"
-                      className="rounded-lg mt-2 max-w-full"
+                      className="rounded-lg mb-2 max-w-full cursor-pointer"
+                      onClick={() => window.open(message.image_url, '_blank')}
                     />
                   )}
+                  {message.content && <p className="break-words">{message.content}</p>}
                 </div>
                 <div className="flex items-center gap-2 mt-1 px-2">
                   {message.reaction && <span className="text-lg">{message.reaction}</span>}
@@ -157,12 +241,19 @@ export default function Chat() {
                       </button>
                     ))}
                   </div>
-                  <span className="text-xs text-gray-400 ml-auto">
-                    {new Date(message.created_at).toLocaleTimeString([], {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    })}
-                  </span>
+                  <div className="flex items-center gap-1 ml-auto">
+                    <span className="text-xs text-gray-400">
+                      {new Date(message.created_at).toLocaleTimeString([], {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    {isMine && (
+                      <span className="text-xs text-gray-400" title={message.status || 'sent'}>
+                        {message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓✓' : message.status === 'sent' ? '✓' : '○'}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -171,6 +262,25 @@ export default function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
+      {imagePreview && (
+        <div className="px-4 pt-2 pb-0">
+          <div className="relative inline-block">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="max-w-xs max-h-48 rounded-lg object-cover"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+              title="Remove image"
+            >
+              <span className="text-xs">×</span>
+            </button>
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-2">
           <button
@@ -180,13 +290,21 @@ export default function Chat() {
           >
             <Smile className="w-6 h-6 text-gray-400" />
           </button>
-          <button
-            type="button"
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            accept="image/*"
+            className="hidden"
+            id="chat-image-input"
+          />
+          <label
+            htmlFor="chat-image-input"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
             title="Add image"
           >
             <ImageIcon className="w-6 h-6 text-gray-400" />
-          </button>
+          </label>
           <input
             type="text"
             value={newMessage}
@@ -196,10 +314,14 @@ export default function Chat() {
           />
           <button
             type="submit"
-            disabled={loading || !newMessage.trim()}
+            disabled={loading || uploadingImage || (!newMessage.trim() && !selectedImage)}
             className="p-2 bg-gradient-to-br from-brand-coral to-pink-500 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
           >
-            <Send className="w-6 h-6" />
+            {uploadingImage ? (
+              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Send className="w-6 h-6" />
+            )}
           </button>
         </div>
       </form>

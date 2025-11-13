@@ -52,6 +52,7 @@ export interface Database {
           content: string
           image_url: string
           reaction: string
+          status: 'sending' | 'sent' | 'delivered' | 'read'
           created_at: string
         }
         Insert: {
@@ -61,6 +62,7 @@ export interface Database {
           content?: string
           image_url?: string
           reaction?: string
+          status?: 'sending' | 'sent' | 'delivered' | 'read'
           created_at?: string
         }
         Update: {
@@ -70,6 +72,7 @@ export interface Database {
           content?: string
           image_url?: string
           reaction?: string
+          status?: 'sending' | 'sent' | 'delivered' | 'read'
           created_at?: string
         }
       }
