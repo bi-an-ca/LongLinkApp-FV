@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { MoodCheckin as MoodCheckinType } from '../lib/database.types';
+import { Flame, Trophy } from 'lucide-react';
 
 const MOODS = [
   { emoji: '😊', label: 'Happy', color: 'from-yellow-200 to-amber-200' },
@@ -43,8 +44,27 @@ export default function MoodCheckin() {
         )
         .subscribe();
 
+      // Subscribe to profile updates for streak changes
+      const profileChannel = supabase
+        .channel('profile_streaks')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${profile.id}`,
+          },
+          () => {
+            // Reload profile to get updated streak
+            window.location.reload(); // Simple refresh, could be optimized
+          }
+        )
+        .subscribe();
+
       return () => {
         supabase.removeChannel(channel);
+        supabase.removeChannel(profileChannel);
       };
     }
   }, [profile, partner]);
@@ -131,8 +151,38 @@ export default function MoodCheckin() {
     return MOODS.find((m) => m.label === moodLabel);
   };
 
+  const currentStreak = profile?.mood_streak || 0;
+  const longestStreak = profile?.longest_mood_streak || 0;
+
   return (
     <div className="space-y-6 pb-20">
+      {/* Streak Display */}
+      {(currentStreak > 0 || longestStreak > 0) && (
+        <div className="bg-gradient-to-r from-orange-400 to-pink-500 rounded-3xl shadow-xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Flame className="w-8 h-8 fill-white" />
+              <div>
+                <p className="text-sm opacity-90">Current Streak</p>
+                <p className="text-3xl font-bold">{currentStreak} days</p>
+              </div>
+            </div>
+            {longestStreak > currentStreak && (
+              <div className="flex items-center gap-2 bg-white/20 rounded-xl px-4 py-2">
+                <Trophy className="w-5 h-5" />
+                <div>
+                  <p className="text-xs opacity-90">Best</p>
+                  <p className="text-lg font-bold">{longestStreak} days</p>
+                </div>
+              </div>
+            )}
+          </div>
+          {currentStreak >= 7 && (
+            <p className="text-sm mt-3 opacity-90">🔥 Keep it up! You're on fire!</p>
+          )}
+        </div>
+      )}
+
       <div className="bg-white rounded-3xl shadow-xl p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">How are you feeling today?</h2>
 

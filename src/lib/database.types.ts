@@ -21,6 +21,10 @@ export interface Database {
           theme_accent_color: string | null
           theme_background_color: string | null
           theme_blush_color: string | null
+          mood_streak: number | null
+          longest_mood_streak: number | null
+          last_mood_date: string | null
+          last_seen_at: string | null
           created_at: string
           updated_at: string
         }
@@ -35,6 +39,10 @@ export interface Database {
           theme_accent_color?: string | null
           theme_background_color?: string | null
           theme_blush_color?: string | null
+          mood_streak?: number | null
+          longest_mood_streak?: number | null
+          last_mood_date?: string | null
+          last_seen_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -49,6 +57,10 @@ export interface Database {
           theme_accent_color?: string | null
           theme_background_color?: string | null
           theme_blush_color?: string | null
+          mood_streak?: number | null
+          longest_mood_streak?: number | null
+          last_mood_date?: string | null
+          last_seen_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -230,6 +242,61 @@ export interface Database {
           updated_at?: string
         }
       }
+      typing_status: {
+        Row: {
+          id: string
+          user_id: string
+          partner_id: string
+          is_typing: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          partner_id: string
+          is_typing?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          partner_id?: string
+          is_typing?: boolean
+          updated_at?: string
+        }
+      }
+      relationship_milestones: {
+        Row: {
+          id: string
+          user_id: string
+          partner_id: string
+          milestone_type: string
+          title: string
+          description: string | null
+          milestone_date: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          partner_id: string
+          milestone_type: string
+          title: string
+          description?: string | null
+          milestone_date: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          partner_id?: string
+          milestone_type?: string
+          title?: string
+          description?: string | null
+          milestone_date?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -253,3 +320,5 @@ export type Memory = Database['public']['Tables']['memories']['Row']
 export type DailyPrompt = Database['public']['Tables']['daily_prompts']['Row']
 export type PromptResponse = Database['public']['Tables']['prompt_responses']['Row']
 export type CalendarEvent = Database['public']['Tables']['calendar_events']['Row']
+export type TypingStatus = Database['public']['Tables']['typing_status']['Row']
+export type RelationshipMilestone = Database['public']['Tables']['relationship_milestones']['Row']

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Palette, Settings, X, Save } from 'lucide-react';
+import { Palette, Settings, X, Save, Moon, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Milestones from './Milestones';
 
 export default function Profile() {
   const { profile, updateProfile } = useAuth();
-  const { colors, updateTheme } = useTheme();
+  const { colors, updateTheme, darkMode, toggleDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [tempColors, setTempColors] = useState(colors);
@@ -49,8 +50,48 @@ export default function Profile() {
     }
   };
 
+  // Normalize color to 6-digit hex format
+  const normalizeColor = (color: string): string => {
+    if (!color) return '#F7838D';
+    // Remove any whitespace
+    color = color.trim();
+    // Add # if missing
+    if (!color.startsWith('#')) {
+      color = '#' + color;
+    }
+    // Convert 3-digit hex to 6-digit
+    if (color.length === 4 && /^#[0-9A-Fa-f]{3}$/.test(color)) {
+      color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+    }
+    return color.toUpperCase();
+  };
+
   const handleSaveTheme = async () => {
-    await updateTheme(tempColors);
+    try {
+      // Normalize colors
+      const normalizedColors = {
+        accent: normalizeColor(tempColors.accent),
+        background: normalizeColor(tempColors.background),
+        blush: normalizeColor(tempColors.blush),
+      };
+
+      // Validate color format
+      const colorRegex = /^#([A-Fa-f0-9]{6})$/;
+      if (!colorRegex.test(normalizedColors.accent) || !colorRegex.test(normalizedColors.background) || !colorRegex.test(normalizedColors.blush)) {
+        toast.error('Please enter valid hex color codes (e.g., #F7838D)');
+        return;
+      }
+
+      if (!profile) {
+        toast.error('Please sign in to save theme changes');
+        return;
+      }
+
+      await updateTheme(normalizedColors);
+    } catch (error) {
+      console.error('Error saving theme:', error);
+      toast.error('Failed to save theme changes');
+    }
   };
 
   const applyPreset = (preset: typeof presetThemes[0]) => {
@@ -138,11 +179,40 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Dark Mode Toggle */}
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {darkMode ? (
+              <Moon className="w-6 h-6 text-brand-coral" />
+            ) : (
+              <Sun className="w-6 h-6 text-brand-coral" />
+            )}
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">Dark Mode</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Toggle dark theme</p>
+            </div>
+          </div>
+          <button
+            onClick={toggleDarkMode}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              darkMode ? 'bg-brand-coral' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                darkMode ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
       {/* Theme Customization */}
-      <div className="bg-white rounded-3xl shadow-xl p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <Palette className="w-6 h-6 text-brand-coral" />
-          <h3 className="text-xl font-bold text-gray-800">Theme Customization</h3>
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white">Theme Customization</h3>
         </div>
 
         {/* Preset Themes */}
@@ -270,6 +340,9 @@ export default function Profile() {
           Save Theme
         </button>
       </div>
+
+      {/* Relationship Milestones */}
+      {partner && <Milestones />}
     </div>
   );
 }
