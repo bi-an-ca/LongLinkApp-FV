@@ -1,6 +1,54 @@
 -- LongLink Database Setup Script
 -- Run this in your Supabase SQL Editor to set up the database
 
+-- Function to generate random invite codes
+CREATE OR REPLACE FUNCTION generate_invite_code()
+RETURNS text AS $$
+DECLARE
+  chars text := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  result text := '';
+  i integer;
+BEGIN
+  FOR i IN 1..6 LOOP
+    result := result || substr(chars, floor(random() * length(chars) + 1)::integer, 1);
+  END LOOP;
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to ensure unique invite code on insert
+CREATE OR REPLACE FUNCTION ensure_unique_invite_code()
+RETURNS TRIGGER AS $$
+DECLARE
+  new_code text;
+  code_exists boolean;
+  max_attempts integer := 10;
+  attempt integer := 0;
+BEGIN
+  -- Only generate if invite_code is null
+  IF NEW.invite_code IS NULL THEN
+    LOOP
+      new_code := generate_invite_code();
+      
+      -- Check if code exists
+      SELECT EXISTS(SELECT 1 FROM profiles WHERE invite_code = new_code) INTO code_exists;
+      
+      IF NOT code_exists THEN
+        NEW.invite_code := new_code;
+        EXIT;
+      END IF;
+      
+      attempt := attempt + 1;
+      IF attempt >= max_attempts THEN
+        RAISE EXCEPTION 'Could not generate unique invite code after % attempts', max_attempts;
+      END IF;
+    END LOOP;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Create profiles table
 CREATE TABLE IF NOT EXISTS profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -9,9 +57,17 @@ CREATE TABLE IF NOT EXISTS profiles (
   timezone text DEFAULT 'UTC',
   partner_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   avatar_url text DEFAULT '',
+  invite_code text UNIQUE,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
+
+-- Create trigger for generating unique invite codes
+DROP TRIGGER IF EXISTS profiles_invite_code_trigger ON profiles;
+CREATE TRIGGER profiles_invite_code_trigger
+  BEFORE INSERT ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION ensure_unique_invite_code();
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
@@ -26,6 +82,12 @@ CREATE POLICY "Users can view partner profile"
   ON profiles FOR SELECT
   TO authenticated
   USING (auth.uid() = partner_id);
+
+DROP POLICY IF EXISTS "Users can search by invite code" ON profiles;
+CREATE POLICY "Users can search by invite code"
+  ON profiles FOR SELECT
+  TO authenticated
+  USING (invite_code IS NOT NULL);
 
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
