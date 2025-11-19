@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import Milestones from './Milestones';
 
 export default function Profile() {
-  const { profile, updateProfile } = useAuth();
+  const { profile, updateProfile, partner } = useAuth();
   const { colors, updateTheme, darkMode, toggleDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');

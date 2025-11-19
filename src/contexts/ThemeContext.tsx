@@ -106,10 +106,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (error) {
         console.error('Error updating theme:', error);
         // Revert optimistic update on error
+        const profileWithTheme = profile as any;
         const originalColors = {
-          accent: profile.theme_accent_color || '#F7838D',
-          background: profile.theme_background_color || '#FFECF2',
-          blush: profile.theme_blush_color || '#FAC2C6',
+          accent: profileWithTheme.theme_accent_color || '#F7838D',
+          background: profileWithTheme.theme_background_color || '#FFECF2',
+          blush: profileWithTheme.theme_blush_color || '#FAC2C6',
         };
         setColors(originalColors);
         applyTheme(originalColors);

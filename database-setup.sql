@@ -58,6 +58,9 @@ CREATE TABLE IF NOT EXISTS profiles (
   partner_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   avatar_url text DEFAULT '',
   invite_code text UNIQUE,
+  theme_accent_color text DEFAULT '#F7838D',
+  theme_background_color text DEFAULT '#FFECF2',
+  theme_blush_color text DEFAULT '#FAC2C6',
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
