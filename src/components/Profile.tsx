@@ -88,8 +88,8 @@ export default function Profile() {
       }
 
       await updateTheme(normalizedColors);
-    } catch (error) {
-      console.error('Error saving theme:', error);
+    } catch {
+      console.error('Error saving theme');
       toast.error('Failed to save theme changes');
     }
   };

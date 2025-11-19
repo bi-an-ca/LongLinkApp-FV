@@ -92,7 +92,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       applyTheme(updatedColors);
       
       // Save to database
-      const { error, data } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
           theme_accent_color: updatedColors.accent,
