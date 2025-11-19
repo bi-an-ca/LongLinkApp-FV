@@ -366,13 +366,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (linkError) {
-      // Handle specific error messages from the database function
-      if (linkError.message.includes('already has a partner')) {
-        throw new Error('One of you is already linked with someone else');
-      } else if (linkError.message.includes('Cannot link with yourself')) {
-        throw new Error('You cannot link with yourself');
+      console.error('Link partners RPC error:', linkError);
+      
+      // If function doesn't exist, fall back to manual updates
+      if (linkError.message?.includes('function') && (linkError.message?.includes('does not exist') || linkError.code === '42883')) {
+        console.warn('link_partners function not found, using fallback method');
+        
+        // Fallback: Update both profiles manually (less safe but works)
+        const { error: error1 } = await supabase
+          .from('profiles')
+          .update({ partner_id: partnerProfile.id })
+          .eq('id', user.id);
+
+        if (error1) {
+          console.error('Fallback link error 1:', error1);
+          throw new Error('Failed to link partner. Please try again.');
+        }
+
+        const { error: error2 } = await supabase
+          .from('profiles')
+          .update({ partner_id: user.id })
+          .eq('id', partnerProfile.id);
+
+        if (error2) {
+          console.error('Fallback link error 2:', error2);
+          // Rollback first update if second fails
+          await supabase
+            .from('profiles')
+            .update({ partner_id: null })
+            .eq('id', user.id);
+          throw new Error('Failed to complete partner link. Please ensure the link_partners function exists in your database. Run: supabase/migrations/20251110090000_add_atomic_partner_linking_function.sql');
+        }
       } else {
-        throw new Error(linkError.message || 'Failed to link partner. Please try again.');
+        // Handle specific error messages from the database function
+        if (linkError.message.includes('already has a partner')) {
+          throw new Error('One of you is already linked with someone else');
+        } else if (linkError.message.includes('Cannot link with yourself')) {
+          throw new Error('You cannot link with yourself');
+        } else {
+          throw new Error(linkError.message || 'Failed to link partner. Please try again.');
+        }
       }
     }
 
@@ -391,26 +424,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Failed to verify partner link. Please try again.');
     }
     
-    // Try to verify partner's side (may fail due to RLS, but that's okay - real-time will handle it)
-    try {
-      const { data: verifyPartner } = await supabase
-        .from('profiles')
-        .select('partner_id')
-        .eq('id', partnerProfile.id)
-        .single();
-      
-      if (verifyPartner?.partner_id !== user.id) {
-        console.warn('Link verification: Partner side not yet visible (this is normal, real-time will update)');
-        // Don't throw error here - the atomic function should have linked both sides
-        // The partner's real-time subscription will pick up the change
-      } else {
-        console.log('Partner link verified successfully on both sides');
-      }
-    } catch (verifyError) {
-      // RLS might prevent us from reading partner's profile immediately
-      // This is okay - the atomic function linked both sides, and real-time will update the partner
-      console.log('Could not verify partner side (RLS restriction), but atomic function ensures both are linked');
-    }
+  console.log('Partner link successful! Both users should now be connected.');
   };
 
   return (
