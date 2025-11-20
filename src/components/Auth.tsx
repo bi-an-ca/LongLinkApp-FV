@@ -57,10 +57,12 @@ export default function Auth({ onDemoMode }: AuthProps) {
         await signIn(email.trim().toLowerCase(), password);
       }
     } catch (err: any) {
-      // More detailed error messages
-      console.error('Full authentication error object:', err);
-      console.error('Error message:', err.message);
-      console.error('Error stack:', err.stack);
+      // More detailed error messages (development only)
+      if (import.meta.env.DEV) {
+        console.error('Full authentication error object:', err);
+        console.error('Error message:', err.message);
+        console.error('Error stack:', err.stack);
+      }
       
       let errorMessage = 'An error occurred. Please try again.';
       

@@ -36,11 +36,10 @@ export default function Chat() {
             schema: 'public',
             table: 'chat_messages',
           },
-          () => {
-            loadMessages().then(() => {
-              // Mark as read after loading
-              setTimeout(() => markMessagesAsRead(), 100);
-            });
+          async () => {
+            await loadMessages();
+            // Mark as read after loading
+            setTimeout(() => markMessagesAsRead(), 100);
           }
         )
         .subscribe();
@@ -172,7 +171,9 @@ export default function Chat() {
       });
 
     if (error) {
-      console.error('Error updating typing status:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating typing status:', error);
+      }
     }
   };
 
@@ -241,7 +242,9 @@ export default function Chat() {
         });
 
       if (uploadError) {
-        console.error('Error uploading image:', uploadError);
+        if (import.meta.env.DEV) {
+          console.error('Error uploading image:', uploadError);
+        }
         toast.error('Failed to upload image. Please try again.');
         return null;
       }
@@ -249,7 +252,9 @@ export default function Chat() {
       const { data } = supabase.storage.from('messages').getPublicUrl(filePath);
       return data.publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error uploading image:', error);
+      }
       toast.error('Failed to upload image. Please try again.');
       return null;
     } finally {
@@ -281,7 +286,9 @@ export default function Chat() {
       });
 
       if (error) {
-        console.error('Error sending message:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error sending message:', error);
+        }
         toast.error('Failed to send message. Please try again.');
         return;
       }
@@ -294,7 +301,9 @@ export default function Chat() {
       }
       toast.success('Message sent!');
     } catch (error) {
-      console.error('Error sending message:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error sending message:', error);
+      }
       toast.error('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
@@ -309,13 +318,19 @@ export default function Chat() {
         .eq('id', messageId);
 
       if (error) {
-        console.error('Error adding reaction:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error adding reaction:', error);
+        }
+        toast.error('Failed to add reaction. Please try again.');
         return;
       }
 
       loadMessages();
     } catch (error) {
-      console.error('Error adding reaction:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error adding reaction:', error);
+      }
+      toast.error('Failed to add reaction. Please try again.');
     }
   };
 

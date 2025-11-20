@@ -12,16 +12,18 @@ function AppContent() {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const { user, profile, partner, loading } = useAuth();
 
-  // Debug logging
+  // Debug logging (development only)
   useEffect(() => {
-    console.log('AppContent state:', {
-      hasUser: !!user,
-      hasProfile: !!profile,
-      hasPartner: !!partner,
-      loading,
-      userId: user?.id,
-      profileId: profile?.id
-    });
+    if (import.meta.env.DEV) {
+      console.log('AppContent state:', {
+        hasUser: !!user,
+        hasProfile: !!profile,
+        hasPartner: !!partner,
+        loading,
+        userId: user?.id,
+        profileId: profile?.id
+      });
+    }
   }, [user, profile, partner, loading]);
 
   if (isDemoMode) {

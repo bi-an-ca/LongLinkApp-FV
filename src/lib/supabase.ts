@@ -17,12 +17,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(errorMsg);
 }
 
-// Log connection info (without sensitive data)
-console.log('Supabase connection initialized:', {
-  url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'missing',
-  hasKey: !!supabaseAnonKey,
-  keyLength: supabaseAnonKey?.length || 0
-});
+// Log connection info (without sensitive data) - only in development
+if (import.meta.env.DEV) {
+  console.log('Supabase connection initialized:', {
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'missing',
+    hasKey: !!supabaseAnonKey,
+    keyLength: supabaseAnonKey?.length || 0
+  });
+}
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
@@ -31,8 +33,12 @@ export async function initializeDatabase() {
   try {
     // This will be called on app initialization to ensure tables exist
     const { error } = await supabase.rpc('init_longlink_schema');
-    if (error) console.log('Database already initialized or error:', error.message);
+    if (error && import.meta.env.DEV) {
+      console.log('Database already initialized or error:', error.message);
+    }
   } catch (error) {
-    console.log('Database initialization skipped:', error);
+    if (import.meta.env.DEV) {
+      console.log('Database initialization skipped:', error);
+    }
   }
 }

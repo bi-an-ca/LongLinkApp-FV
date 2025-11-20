@@ -45,6 +45,8 @@ export default function MoodCheckin() {
         .subscribe();
 
       // Subscribe to profile updates for streak changes
+      // Note: Profile updates are already handled by AuthContext realtime subscriptions
+      // This subscription is kept for local state updates if needed
       const profileChannel = supabase
         .channel('profile_streaks')
         .on(
@@ -56,8 +58,8 @@ export default function MoodCheckin() {
             filter: `id=eq.${profile.id}`,
           },
           () => {
-            // Reload profile to get updated streak
-            window.location.reload(); // Simple refresh, could be optimized
+            // Profile will be updated automatically by AuthContext
+            // No need to reload the page
           }
         )
         .subscribe();
@@ -117,7 +119,9 @@ export default function MoodCheckin() {
           .eq('id', myMood.id);
 
         if (error) {
-          console.error('Error updating mood:', error);
+          if (import.meta.env.DEV) {
+            console.error('Error updating mood:', error);
+          }
           toast.error('Failed to update mood. Please try again.');
           return;
         }
@@ -131,7 +135,9 @@ export default function MoodCheckin() {
         });
 
         if (error) {
-          console.error('Error saving mood:', error);
+          if (import.meta.env.DEV) {
+            console.error('Error saving mood:', error);
+          }
           toast.error('Failed to save mood. Please try again.');
           return;
         }
@@ -140,7 +146,9 @@ export default function MoodCheckin() {
 
       loadMoods();
     } catch (error) {
-      console.error('Error saving mood:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error saving mood:', error);
+      }
       toast.error('Failed to save mood. Please try again.');
     } finally {
       setLoading(false);

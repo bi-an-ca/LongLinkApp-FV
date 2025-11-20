@@ -89,7 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           filter: `id=eq.${profile.partner_id}`,
         },
         (payload) => {
-          console.log('Partner profile updated:', payload.new);
+          if (import.meta.env.DEV) {
+            console.log('Partner profile updated:', payload.new);
+          }
           setPartner(payload.new as Profile);
         }
       )
@@ -115,7 +117,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           filter: `id=eq.${profile.id}`,
         },
         async (payload) => {
-          console.log('Own profile updated, reloading...', payload.new);
+          if (import.meta.env.DEV) {
+            console.log('Own profile updated, reloading...', payload.new);
+          }
           const updatedProfile = payload.new as Profile;
           setProfile(updatedProfile);
           
@@ -146,7 +150,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
-      console.log('Loading profile for user:', userId);
+      if (import.meta.env.DEV) {
+        console.log('Loading profile for user:', userId);
+      }
       
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -165,11 +171,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      console.log('Profile data received:', profileData ? 'Found' : 'Not found');
+      if (import.meta.env.DEV) {
+        console.log('Profile data received:', profileData ? 'Found' : 'Not found');
+      }
 
       if (profileData) {
         setProfile(profileData);
-        console.log('Profile set:', profileData.display_name);
+        if (import.meta.env.DEV) {
+          console.log('Profile set:', profileData.display_name);
+        }
 
         if (profileData.partner_id) {
           const { data: partnerData, error: partnerError } = await supabase
@@ -182,14 +192,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.error('Error loading partner:', partnerError);
           } else if (partnerData) {
             setPartner(partnerData);
-            console.log('Partner set:', partnerData.display_name);
+            if (import.meta.env.DEV) {
+              console.log('Partner set:', partnerData.display_name);
+            }
           }
         } else {
           setPartner(null);
         }
       } else {
         // Profile doesn't exist, create it
-        console.log('Profile not found, creating new profile...');
+        if (import.meta.env.DEV) {
+          console.log('Profile not found, creating new profile...');
+        }
         const { data: userData } = await supabase.auth.getUser();
         if (userData.user) {
           const { error: createError } = await supabase
@@ -210,11 +224,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               code: createError.code
             });
           } else {
-            console.log('Profile created successfully, reloading...');
+            if (import.meta.env.DEV) {
+              console.log('Profile created successfully, reloading...');
+            }
             await loadProfile(userId);
           }
         } else {
-          console.error('No user data available to create profile');
+          if (import.meta.env.DEV) {
+            console.error('No user data available to create profile');
+          }
         }
       }
     } catch (error) {
@@ -241,7 +259,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    console.log('Attempting sign in with email:', email.trim().toLowerCase());
+    if (import.meta.env.DEV) {
+      console.log('Attempting sign in with email:', email.trim().toLowerCase());
+    }
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
@@ -249,7 +269,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) {
-      console.error('Sign in error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Sign in error:', error);
+      }
       // Provide more helpful error messages
       if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid credentials')) {
         throw new Error('Invalid email or password. Please check your credentials and try again.');
@@ -262,7 +284,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    console.log('Sign in successful, user:', data.user?.id);
+    if (import.meta.env.DEV) {
+      console.log('Sign in successful, user:', data.user?.id);
+    }
 
     // Ensure profile exists after sign in
     if (data.user) {
@@ -370,7 +394,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // If function doesn't exist, fall back to manual updates
       if (linkError.message?.includes('function') && (linkError.message?.includes('does not exist') || linkError.code === '42883')) {
-        console.warn('link_partners function not found, using fallback method');
+        if (import.meta.env.DEV) {
+          console.warn('link_partners function not found, using fallback method');
+        }
         
         // Fallback: Update both profiles manually (less safe but works)
         const { error: error1 } = await supabase
@@ -424,7 +450,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Failed to verify partner link. Please try again.');
     }
     
-  console.log('Partner link successful! Both users should now be connected.');
+  if (import.meta.env.DEV) {
+    console.log('Partner link successful! Both users should now be connected.');
+  }
   };
 
   return (

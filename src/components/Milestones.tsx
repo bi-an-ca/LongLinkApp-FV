@@ -82,7 +82,9 @@ export default function Milestones() {
       });
 
       if (error) {
-        console.error('Error creating milestone:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error creating milestone:', error);
+        }
         toast.error('Failed to create milestone. Please try again.');
         return;
       }
@@ -96,7 +98,9 @@ export default function Milestones() {
       setShowAdd(false);
       toast.success('Milestone added!');
     } catch (error) {
-      console.error('Error creating milestone:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error creating milestone:', error);
+      }
       toast.error('Failed to create milestone. Please try again.');
     } finally {
       setLoading(false);

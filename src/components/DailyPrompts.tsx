@@ -95,7 +95,9 @@ export default function DailyPrompts() {
           .eq('id', myResponse.id);
 
         if (error) {
-          console.error('Error updating response:', error);
+          if (import.meta.env.DEV) {
+            console.error('Error updating response:', error);
+          }
           toast.error('Failed to update response. Please try again.');
           return;
         }
@@ -108,7 +110,9 @@ export default function DailyPrompts() {
         });
 
         if (error) {
-          console.error('Error creating response:', error);
+          if (import.meta.env.DEV) {
+            console.error('Error creating response:', error);
+          }
           toast.error('Failed to submit response. Please try again.');
           return;
         }
@@ -117,7 +121,9 @@ export default function DailyPrompts() {
 
       loadTodayPrompt();
     } catch (error) {
-      console.error('Error submitting response:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error submitting response:', error);
+      }
       toast.error('Failed to submit response. Please try again.');
     } finally {
       setLoading(false);

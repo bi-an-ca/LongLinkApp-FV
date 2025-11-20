@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import Milestones from './Milestones';
 
 export default function Profile() {
-  const { profile, updateProfile } = useAuth();
+  const { profile, partner, updateProfile } = useAuth();
   const { colors, updateTheme, darkMode, toggleDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
@@ -89,7 +89,9 @@ export default function Profile() {
 
       await updateTheme(normalizedColors);
     } catch (error) {
-      console.error('Error saving theme:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error saving theme:', error);
+      }
       toast.error('Failed to save theme changes');
     }
   };

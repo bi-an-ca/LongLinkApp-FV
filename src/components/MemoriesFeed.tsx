@@ -102,7 +102,9 @@ export default function MemoriesFeed() {
         });
 
       if (uploadError) {
-        console.error('Error uploading image:', uploadError);
+        if (import.meta.env.DEV) {
+          console.error('Error uploading image:', uploadError);
+        }
         toast.error('Failed to upload image. Please try again.');
         return null;
       }
@@ -110,7 +112,9 @@ export default function MemoriesFeed() {
       const { data } = supabase.storage.from('memories').getPublicUrl(filePath);
       return data.publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error uploading image:', error);
+      }
       toast.error('Failed to upload image. Please try again.');
       return null;
     } finally {
@@ -141,7 +145,9 @@ export default function MemoriesFeed() {
       });
 
       if (error) {
-        console.error('Error creating memory:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error creating memory:', error);
+        }
         toast.error('Failed to create memory. Please try again.');
         return;
       }
@@ -151,7 +157,9 @@ export default function MemoriesFeed() {
       setShowCreate(false);
       toast.success('Memory created!');
     } catch (error) {
-      console.error('Error creating memory:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error creating memory:', error);
+      }
       toast.error('Failed to create memory. Please try again.');
     } finally {
       setLoading(false);
@@ -166,14 +174,18 @@ export default function MemoriesFeed() {
     try {
       const { error } = await supabase.from('memories').delete().eq('id', memoryId);
       if (error) {
-        console.error('Error deleting memory:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error deleting memory:', error);
+        }
         toast.error('Failed to delete memory. Please try again.');
         return;
       }
       loadMemories();
       toast.success('Memory deleted');
     } catch (error) {
-      console.error('Error deleting memory:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting memory:', error);
+      }
       toast.error('Failed to delete memory. Please try again.');
     }
   };
