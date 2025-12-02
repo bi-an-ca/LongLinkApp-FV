@@ -264,7 +264,12 @@ export default function Chat() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!newMessage.trim() && !selectedImage) || !profile || !partner || loading || uploadingImage) return;
+    if ((!newMessage.trim() && !selectedImage) || !profile || loading || uploadingImage) return;
+
+    if (!partner) {
+      toast.error('Please link with a partner to send messages');
+      return;
+    }
 
     setLoading(true);
     try {

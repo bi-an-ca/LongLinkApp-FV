@@ -17,7 +17,7 @@ export default function MemoriesFeed() {
   const { profile, partner } = useAuth();
 
   useEffect(() => {
-    if (profile && partner) {
+    if (profile) {
       loadMemories();
 
       const channel = supabase
@@ -42,13 +42,20 @@ export default function MemoriesFeed() {
   }, [profile, partner]);
 
   const loadMemories = async () => {
-    if (!profile || !partner) return;
+    if (!profile) return;
 
-    const { data } = await supabase
+    let query = supabase
       .from('memories')
       .select('*')
-      .or(`user_id.eq.${profile.id},user_id.eq.${partner.id}`)
       .order('created_at', { ascending: false });
+
+    if (partner) {
+      query = query.or(`user_id.eq.${profile.id},user_id.eq.${partner.id}`);
+    } else {
+      query = query.eq('user_id', profile.id);
+    }
+
+    const { data } = await query;
 
     if (data) {
       setMemories(data);
@@ -123,7 +130,7 @@ export default function MemoriesFeed() {
   };
 
   const handleCreateMemory = async () => {
-    if ((!newContent.trim() && !selectedImage) || !profile || !partner || loading || uploadingImage) return;
+    if ((!newContent.trim() && !selectedImage) || !profile || loading || uploadingImage) return;
 
     setLoading(true);
     try {
@@ -138,7 +145,7 @@ export default function MemoriesFeed() {
 
       const { error } = await supabase.from('memories').insert({
         user_id: profile.id,
-        partner_id: partner.id,
+        partner_id: partner?.id || null,
         type: selectedImage ? 'photo' : 'note',
         content: newContent,
         media_url: imageUrl || '',
