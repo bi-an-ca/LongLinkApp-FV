@@ -106,6 +106,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!profile?.id) return;
 
+    if (import.meta.env.DEV) {
+      console.log('[AuthContext] Setting up profile subscription for:', profile.id);
+    }
+
     const channel = supabase
       .channel(`own_profile_${profile.id}`)
       .on(
@@ -118,21 +122,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         async (payload) => {
           if (import.meta.env.DEV) {
-            console.log('Own profile updated, reloading...', payload.new);
+            console.log('[AuthContext] ✅ Profile UPDATE event received!', {
+              oldPartnerId: profile.partner_id,
+              newPartnerId: (payload.new as any)?.partner_id,
+              fullPayload: payload.new
+            });
           }
           const updatedProfile = payload.new as Profile;
           setProfile(updatedProfile);
-          
+
           // If partner_id changed, reload partner
           if (updatedProfile.partner_id) {
             if (!partner || partner.id !== updatedProfile.partner_id) {
+              if (import.meta.env.DEV) {
+                console.log('[AuthContext] Loading partner profile:', updatedProfile.partner_id);
+              }
               const { data: partnerData } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', updatedProfile.partner_id)
                 .maybeSingle();
-              
+
               if (partnerData) {
+                if (import.meta.env.DEV) {
+                  console.log('[AuthContext] ✅ Partner loaded:', partnerData.display_name);
+                }
                 setPartner(partnerData);
               }
             }
@@ -141,12 +155,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (import.meta.env.DEV) {
+          console.log('[AuthContext] Profile channel subscription status:', status);
+        }
+      });
 
     return () => {
+      if (import.meta.env.DEV) {
+        console.log('[AuthContext] Cleaning up profile subscription');
+      }
       supabase.removeChannel(channel);
     };
-  }, [profile?.id, partner?.id]);
+  }, [profile?.id]);
 
   const loadProfile = async (userId: string) => {
     try {
