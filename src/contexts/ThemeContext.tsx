@@ -36,15 +36,27 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (profile) {
-      const profileWithTheme = profile as any;
-      const themeColors = {
-        accent: profileWithTheme.theme_accent_color || '#F7838D',
-        background: profileWithTheme.theme_background_color || '#FFECF2',
-        blush: profileWithTheme.theme_blush_color || '#FAC2C6',
-      };
-      setColors(themeColors);
-      applyTheme(themeColors);
-      setLoading(false);
+      try {
+        const themeColors = {
+          accent: profile.theme_accent_color || '#F7838D',
+          background: profile.theme_background_color || '#FFECF2',
+          blush: profile.theme_blush_color || '#FAC2C6',
+        };
+        setColors(themeColors);
+        applyTheme(themeColors);
+      } catch (error) {
+        console.error('Error loading theme:', error);
+        // Use defaults on error
+        const defaultColors = {
+          accent: '#F7838D',
+          background: '#FFECF2',
+          blush: '#FAC2C6',
+        };
+        setColors(defaultColors);
+        applyTheme(defaultColors);
+      } finally {
+        setLoading(false);
+      }
     } else {
       setLoading(false);
     }
@@ -106,13 +118,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (error) {
         console.error('Error updating theme:', error);
         // Revert optimistic update on error
-        const originalColors = {
-          accent: profile.theme_accent_color || '#F7838D',
-          background: profile.theme_background_color || '#FFECF2',
-          blush: profile.theme_blush_color || '#FAC2C6',
-        };
-        setColors(originalColors);
-        applyTheme(originalColors);
+        try {
+          const originalColors = {
+            accent: profile.theme_accent_color || '#F7838D',
+            background: profile.theme_background_color || '#FFECF2',
+            blush: profile.theme_blush_color || '#FAC2C6',
+          };
+          setColors(originalColors);
+          applyTheme(originalColors);
+        } catch (revertError) {
+          console.error('Error reverting theme:', revertError);
+        }
         toast.error('Failed to save theme changes. Please try again.');
         throw error;
       } else {

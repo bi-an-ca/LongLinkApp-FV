@@ -11,6 +11,24 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [tempColors, setTempColors] = useState(colors);
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="space-y-6 pb-20">
+        <div className="bg-white rounded-3xl shadow-xl p-6 text-center">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Unable to load profile</h3>
+          <p className="text-gray-600 mb-4">Please try refreshing the page.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-brand-coral text-white rounded-xl font-medium hover:bg-brand-coral/90 transition-all"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Update tempColors when colors change
   useEffect(() => {
@@ -344,7 +362,11 @@ export default function Profile() {
       </div>
 
       {/* Relationship Milestones */}
-      {partner && <Milestones />}
+      {partner && (
+        <div>
+          <Milestones />
+        </div>
+      )}
     </div>
   );
 }
