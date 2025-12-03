@@ -6,12 +6,49 @@ import toast from 'react-hot-toast';
 import Milestones from './Milestones';
 
 export default function Profile() {
-  const { profile, partner, updateProfile } = useAuth();
-  const { colors, updateTheme, darkMode, toggleDarkMode } = useTheme();
+  const auth = useAuth();
+  const { profile, partner, updateProfile } = auth;
+  const theme = useTheme();
+  const { colors, updateTheme, darkMode, toggleDarkMode } = theme;
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [tempColors, setTempColors] = useState(colors);
   const [hasError, setHasError] = useState(false);
+
+  // Debug logging
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      try {
+        console.log('[Profile] Render state:', {
+          hasProfile: !!profile,
+          hasPartner: !!partner,
+          hasColors: !!colors,
+          authKeys: auth ? Object.keys(auth) : 'null',
+          themeKeys: theme ? Object.keys(theme) : 'null'
+        });
+      } catch (e) {
+        console.error('[Profile] Error in debug logging:', e);
+      }
+    }
+  }, [profile, partner, colors, auth, theme]);
+
+  // Safety check - if auth context is not available, return error
+  if (!auth || typeof auth !== 'object') {
+    return (
+      <div className="space-y-6 pb-20">
+        <div className="bg-white rounded-3xl shadow-xl p-6 text-center">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Authentication Error</h3>
+          <p className="text-gray-600 mb-4">Unable to load authentication context.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-brand-coral text-white rounded-xl font-medium hover:bg-brand-coral/90 transition-all"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (hasError) {
     return (
