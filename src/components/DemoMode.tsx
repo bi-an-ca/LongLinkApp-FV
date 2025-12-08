@@ -67,8 +67,8 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
   const [promptResponse, setPromptResponse] = useState('You always know how to make me smile, even from thousands of miles away');
   const [showCreateMemory, setShowCreateMemory] = useState(false);
   const [newMemory, setNewMemory] = useState('');
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
   // Update time every minute
   useEffect(() => {

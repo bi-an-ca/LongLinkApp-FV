@@ -27,7 +27,7 @@ function AppContent() {
   }, [user, profile, partner, loading]);
 
   if (isDemoMode) {
-    return <DemoMode onExit={() => setIsDemoMode(false)} />;
+    return <DemoMode key="demo-mode" onExit={() => setIsDemoMode(false)} />;
   }
 
   if (loading) {
