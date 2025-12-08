@@ -93,8 +93,8 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
   };
 
   const renderChat = () => {
-    const [partnerTyping] = useState(false);
-    const [unreadCount] = useState(2);
+    const partnerTyping = false;
+    const unreadCount = 2;
     
     const formatLastSeen = () => {
       return '5 minutes ago';
