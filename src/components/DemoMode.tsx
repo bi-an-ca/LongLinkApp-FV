@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { MessageCircle, Heart, ImageIcon, MessageSquare, ArrowLeft, Clock, Send, Smile, Plus, Trash2, Calendar as CalendarIcon, ChevronLeft, ChevronRight, MapPin, X, Bell, Flame, Trophy, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MessageCircle, Heart, ImageIcon, MessageSquare, ArrowLeft, Clock, Send, Smile, Plus, Trash2, Calendar as CalendarIcon, ChevronLeft, ChevronRight, MapPin, X, Bell, Flame, Trophy, User, LogOut } from 'lucide-react';
 import Logo from './Logo';
 
-type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar' | 'profile';
+type Tab = 'chat' | 'mood' | 'memories' | 'prompts' | 'calendar';
 
 const MOODS = [
   { emoji: '😊', label: 'Happy', color: 'from-yellow-200 to-amber-200' },
@@ -68,10 +68,37 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
   const [showCreateMemory, setShowCreateMemory] = useState(false);
   const [newMemory, setNewMemory] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const getTimeInTimezone = (timezone: string) => {
+    try {
+      return currentTime.toLocaleTimeString('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
 
   const renderChat = () => {
     const [partnerTyping] = useState(false);
     const [unreadCount] = useState(2);
+    
+    const formatLastSeen = () => {
+      return '5 minutes ago';
+    };
     
     return (
       <div className="bg-white rounded-3xl shadow-xl h-[calc(100vh-280px)] flex flex-col">
@@ -79,7 +106,9 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold text-gray-800">Chat with Alex</h2>
-              <p className="text-xs text-gray-500 mt-1">Last seen 5 minutes ago</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Last seen {formatLastSeen()}
+              </p>
             </div>
             {unreadCount > 0 && (
               <span className="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
@@ -94,17 +123,23 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             const prevMessage = index > 0 ? DEMO_MESSAGES[index - 1] : null;
             const showDateHeader = !prevMessage || message.date !== prevMessage.date;
             
+            const formatTimestamp = (date: string) => {
+              if (date === 'Today') return 'Today';
+              if (date === 'Yesterday') return 'Yesterday';
+              return date;
+            };
+            
             return (
               <div key={message.id}>
                 {showDateHeader && (
                   <div className="text-center my-4">
                     <span className="text-xs text-gray-400 bg-white px-3 py-1 rounded-full">
-                      {message.date}
+                      {formatTimestamp(message.date)}
                     </span>
                   </div>
                 )}
                 <div className={`flex ${message.isMine ? 'justify-end' : 'justify-start'}`}>
-                  <div className="max-w-xs lg:max-w-md group">
+                  <div className={`max-w-xs lg:max-w-md group`}>
                     <div
                       className={`rounded-2xl px-4 py-2 ${
                         message.isMine
@@ -150,14 +185,28 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           )}
         </div>
 
-      <div className="p-4 border-t border-gray-100">
+      <form onSubmit={(e) => { e.preventDefault(); }} className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-2">
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Add emoji">
+          <button
+            type="button"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            title="Add emoji"
+          >
             <Smile className="w-6 h-6 text-gray-400" />
           </button>
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Add image">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            id="demo-chat-image-input"
+          />
+          <label
+            htmlFor="demo-chat-image-input"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+            title="Add image"
+          >
             <ImageIcon className="w-6 h-6 text-gray-400" />
-          </button>
+          </label>
           <input
             type="text"
             value={newMessage}
@@ -165,11 +214,15 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             placeholder="Type a message..."
             className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none"
           />
-          <button className="p-2 bg-gradient-to-br from-brand-coral to-pink-500 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all">
+          <button
+            type="submit"
+            disabled={!newMessage.trim()}
+            className="p-2 bg-gradient-to-br from-brand-coral to-pink-500 text-white rounded-full hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
+          >
             <Send className="w-6 h-6" />
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
   };
@@ -181,29 +234,31 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
     return (
       <div className="space-y-6 pb-20">
         {/* Streak Display */}
-        <div className="bg-gradient-to-r from-orange-400 to-pink-500 rounded-3xl shadow-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Flame className="w-8 h-8 fill-white" />
-              <div>
-                <p className="text-sm opacity-90">Current Streak</p>
-                <p className="text-3xl font-bold">{currentStreak} days</p>
-              </div>
-            </div>
-            {longestStreak > currentStreak && (
-              <div className="flex items-center gap-2 bg-white/20 rounded-xl px-4 py-2">
-                <Trophy className="w-5 h-5" />
+        {(currentStreak > 0 || longestStreak > 0) && (
+          <div className="bg-gradient-to-r from-orange-400 to-pink-500 rounded-3xl shadow-xl p-6 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Flame className="w-8 h-8 fill-white" />
                 <div>
-                  <p className="text-xs opacity-90">Best</p>
-                  <p className="text-lg font-bold">{longestStreak} days</p>
+                  <p className="text-sm opacity-90">Current Streak</p>
+                  <p className="text-3xl font-bold">{currentStreak} days</p>
                 </div>
               </div>
+              {longestStreak > currentStreak && (
+                <div className="flex items-center gap-2 bg-white/20 rounded-xl px-4 py-2">
+                  <Trophy className="w-5 h-5" />
+                  <div>
+                    <p className="text-xs opacity-90">Best</p>
+                    <p className="text-lg font-bold">{longestStreak} days</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {currentStreak >= 7 && (
+              <p className="text-sm mt-3 opacity-90">🔥 Keep it up! You're on fire!</p>
             )}
           </div>
-          {currentStreak >= 7 && (
-            <p className="text-sm mt-3 opacity-90">🔥 Keep it up! You're on fire!</p>
-          )}
-        </div>
+        )}
 
         <div className="bg-white rounded-3xl shadow-xl p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">How are you feeling today?</h2>
@@ -238,7 +293,10 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           />
         </div>
 
-        <button className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg">
+        <button
+          disabled={!selectedMood}
+          className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg"
+        >
           Update Mood
         </button>
       </div>
@@ -274,6 +332,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
       {showCreateMemory && (
         <div className="bg-white rounded-3xl shadow-xl p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Create a New Memory</h3>
+          
           <textarea
             value={newMemory}
             onChange={(e) => setNewMemory(e.target.value)}
@@ -281,8 +340,28 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             rows={4}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none mb-4"
           />
+          
+          <div className="mb-4">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="demo-memory-image-input"
+            />
+            <label
+              htmlFor="demo-memory-image-input"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors text-sm text-gray-700"
+            >
+              <ImageIcon className="w-4 h-4" />
+              Add Photo
+            </label>
+          </div>
+
           <div className="flex gap-2">
-            <button className="flex-1 bg-gradient-to-r from-brand-coral to-pink-500 text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all">
+            <button
+              disabled={!newMemory.trim()}
+              className="flex-1 bg-gradient-to-r from-brand-coral to-pink-500 text-white py-2 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50"
+            >
               Save Memory
             </button>
             <button
@@ -329,11 +408,11 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
       <div className="bg-gradient-to-br brand-light to-white rounded-3xl shadow-xl p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-            <MessageSquare className="w-6 h-6 text-brand-coral" />
+            <MessageSquare className="w-6 h-6 text-brand-coral500" />
           </div>
           <div>
-            <p className="text-sm text-brand-coral/90 font-medium">Today's Prompt</p>
-            <p className="text-xs text-brand-coral/80">
+            <p className="text-sm text-brand-coral700 font-medium">Today's Prompt</p>
+            <p className="text-xs text-brand-coral600">
               {new Date().toLocaleDateString('en-US', {
                 month: 'long',
                 day: 'numeric',
@@ -356,7 +435,11 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
           rows={4}
           className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-coral/30 focus:border-transparent outline-none resize-none mb-4"
         />
-        <button className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all shadow-lg flex items-center justify-center gap-2">
+        <button
+          onClick={() => {}}
+          disabled={!promptResponse.trim()}
+          className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white py-3 rounded-xl font-medium hover:from-pink-500 hover:to-rose-500 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
+        >
           <Send className="w-5 h-5" />
           Update Response
         </button>
@@ -372,7 +455,7 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
             <p className="text-xs text-gray-500">Today at 2:30 PM</p>
           </div>
         </div>
-        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap bg-gradient-to-br from-brand-light to-white p-4 rounded-xl">
+        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap bg-gradient-to-br from-pink-50 to-rose-50 p-4 rounded-xl">
           Getting to video call with you this morning. Even though we're far apart, moments like these make everything worth it.
         </p>
       </div>
@@ -670,30 +753,43 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-coral to-pink-500 rounded-full flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white fill-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">LongLink</h1>
-                <p className="text-xs text-gray-500">Love that travels with you</p>
+            <div className="flex-1">
+              <Logo size="sm" showText={true} textStyle="horizontal" />
+              <div className="flex items-center gap-2 mt-1">
+                <Heart className="w-3 h-3 text-brand-coral fill-brand-coral" />
+                <p className="text-xs font-medium text-brand-coral">
+                  Linked with <span className="font-semibold">Alex</span>
+                </p>
               </div>
             </div>
-            <button
-              onClick={onExit}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors text-sm font-medium text-gray-700"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Exit Demo
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {/* Profile view not available in demo */}}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600"
+                title="Profile (not available in demo)"
+                aria-label="Profile"
+              >
+                <User className="w-5 h-5" />
+              </button>
+              <button
+                onClick={onExit}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Exit Demo"
+                aria-label="Exit Demo"
+              >
+                <LogOut className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-sm bg-gradient-to-r from-brand-light to-white rounded-2xl p-4">
+          <div className="flex items-center justify-center gap-6 text-sm bg-white/60 rounded-2xl p-4 border border-brand-blush/30">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-brand-coral" />
               <div>
                 <p className="text-xs text-gray-500">You</p>
-                <p className="font-medium text-gray-800">2:30 PM</p>
+                <p className="font-medium text-gray-800">
+                  {getTimeInTimezone('America/New_York')}
+                </p>
               </div>
             </div>
             <div className="w-px h-8 bg-brand-blush"></div>
@@ -701,7 +797,9 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               <Clock className="w-4 h-4 text-brand-coral" />
               <div>
                 <p className="text-xs text-gray-500">Alex</p>
-                <p className="font-medium text-gray-800">11:30 AM</p>
+                <p className="font-medium text-gray-800">
+                  {getTimeInTimezone('America/Los_Angeles')}
+                </p>
               </div>
             </div>
           </div>
@@ -714,19 +812,20 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
         {activeTab === 'memories' && renderMemories()}
         {activeTab === 'prompts' && renderPrompts()}
         {activeTab === 'calendar' && renderCalendar()}
-        {activeTab === 'profile' && renderProfile()}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-around">
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'chat'
-                  ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Chat"
+              aria-pressed={activeTab === 'chat'}
             >
               <MessageCircle className="w-5 h-5" />
               <span className="text-xs font-medium">Chat</span>
@@ -735,9 +834,11 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('mood')}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'mood'
-                  ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Mood Check-in"
+              aria-pressed={activeTab === 'mood'}
             >
               <Heart className="w-5 h-5" />
               <span className="text-xs font-medium">Mood</span>
@@ -746,9 +847,11 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('memories')}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'memories'
-                  ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Memories"
+              aria-pressed={activeTab === 'memories'}
             >
               <ImageIcon className="w-5 h-5" />
               <span className="text-xs font-medium">Memories</span>
@@ -757,9 +860,11 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('prompts')}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'prompts'
-                  ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Daily Prompts"
+              aria-pressed={activeTab === 'prompts'}
             >
               <MessageSquare className="w-5 h-5" />
               <span className="text-xs font-medium">Prompts</span>
@@ -768,23 +873,14 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
               onClick={() => setActiveTab('calendar')}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 activeTab === 'calendar'
-                  ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-brand-coral text-white shadow-md'
+                  : 'text-gray-600 hover:bg-brand-light'
               }`}
+              aria-label="Calendar"
+              aria-pressed={activeTab === 'calendar'}
             >
               <CalendarIcon className="w-5 h-5" />
               <span className="text-xs font-medium">Calendar</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
-                activeTab === 'profile'
-                  ? 'bg-gradient-to-br from-brand-coral to-pink-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <User className="w-5 h-5" />
-              <span className="text-xs font-medium">Profile</span>
             </button>
           </div>
         </div>
