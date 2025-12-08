@@ -807,11 +807,22 @@ export default function DemoMode({ onExit }: { onExit: () => void }) {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
-        {activeTab === 'chat' && renderChat()}
-        {activeTab === 'mood' && renderMood()}
-        {activeTab === 'memories' && renderMemories()}
-        {activeTab === 'prompts' && renderPrompts()}
-        {activeTab === 'calendar' && renderCalendar()}
+        {(() => {
+          switch (activeTab) {
+            case 'chat':
+              return <div key="chat">{renderChat()}</div>;
+            case 'mood':
+              return <div key="mood">{renderMood()}</div>;
+            case 'memories':
+              return <div key="memories">{renderMemories()}</div>;
+            case 'prompts':
+              return <div key="prompts">{renderPrompts()}</div>;
+            case 'calendar':
+              return <div key="calendar">{renderCalendar()}</div>;
+            default:
+              return <div key="chat">{renderChat()}</div>;
+          }
+        })()}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-brand-blush/30 shadow-lg">
