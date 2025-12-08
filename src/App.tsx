@@ -14,7 +14,7 @@ function AppContent() {
 
   // Debug logging (development only)
   useEffect(() => {
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV && !isDemoMode) {
       console.log('AppContent state:', {
         hasUser: !!user,
         hasProfile: !!profile,
@@ -24,7 +24,7 @@ function AppContent() {
         profileId: profile?.id
       });
     }
-  }, [user, profile, partner, loading]);
+  }, [user, profile, partner, loading, isDemoMode]);
 
   if (isDemoMode) {
     return <DemoMode key="demo-mode" onExit={() => setIsDemoMode(false)} />;
